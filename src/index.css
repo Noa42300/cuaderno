@@ -1,0 +1,118 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fraunces';
+@import '@fontsource/atkinson-hyperlegible/400.css';
+@import '@fontsource/atkinson-hyperlegible/700.css';
+@import '@fontsource/atkinson-hyperlegible/400-italic.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ——— Charte « Cuaderno » : tokens sémantiques (voir CLAUDE.md) ——— */
+:root {
+  --bg: #fbf4e6; /* crème / sable */
+  --surface: #fffdf8;
+  --surface-2: #f4e9d3;
+  --ink: #2b2b2b; /* encre */
+  --muted: #5e554c;
+  --line: #e6d8be;
+  --teja: #c84b31; /* terracotta : aplats décoratifs */
+  --primary: #b03f27; /* teja foncée : textes & boutons (AA) */
+  --on-primary: #ffffff;
+  --grenat: #a11c3a;
+  --safran: #e9a500;
+  --ocre: #d98a2b;
+  --azulejo: #1c6e8c;
+  color-scheme: light;
+}
+.dark {
+  --bg: #1e1a17;
+  --surface: #2a2420;
+  --surface-2: #352d27;
+  --ink: #f5ede0;
+  --muted: #c7b9a6;
+  --line: #4a3f36;
+  --teja: #c84b31;
+  --primary: #e5775c;
+  --on-primary: #1e1a17;
+  --grenat: #e8778c;
+  --safran: #f2c14e;
+  --ocre: #e3a35a;
+  --azulejo: #5fb3d1;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-teja: var(--teja);
+  --color-primary: var(--primary);
+  --color-on-primary: var(--on-primary);
+  --color-grenat: var(--grenat);
+  --color-safran: var(--safran);
+  --color-ocre: var(--ocre);
+  --color-azulejo: var(--azulejo);
+  --font-titre: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Atkinson Hyperlegible', system-ui, sans-serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  min-height: 100dvh;
+}
+
+h1,
+h2,
+h3,
+.titre {
+  font-family: var(--font-titre);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+
+/* Motif azulejo discret (SVG inline, s'adapte aux couleurs du thème via currentColor) */
+.azulejo {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%231C6E8C' stroke-width='1.2' opacity='.55'%3E%3Cpath d='M20 4 L36 20 L20 36 L4 20 Z'/%3E%3Ccircle cx='20' cy='20' r='5'/%3E%3Cpath d='M0 0 Q10 10 0 20 M40 0 Q30 10 40 20 M0 40 Q10 30 0 20 M40 40 Q30 30 40 20'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 40px 40px;
+}
+.frise {
+  height: 8px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8'%3E%3Cpath d='M0 8 L6 0 L12 8 Z' fill='%23C84B31'/%3E%3Cpath d='M12 8 L18 0 L24 8 Z' fill='%23E9A500'/%3E%3C/svg%3E");
+  background-size: 24px 8px;
+}
+
+/* Champs de formulaire cohérents */
+@layer components {
+  .champ {
+    @apply w-full rounded-lg border border-line bg-surface px-3 py-2 text-ink placeholder:text-muted/70 focus:border-azulejo focus:ring-2 focus:ring-azulejo/30 focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-sm font-bold text-muted;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-bold transition focus-visible:ring-2 focus-visible:ring-azulejo focus-visible:outline-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-bold transition focus-visible:ring-2 focus-visible:ring-azulejo focus-visible:outline-none disabled:opacity-50 bg-primary text-on-primary hover:brightness-110;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-bold transition focus-visible:ring-2 focus-visible:ring-azulejo focus-visible:outline-none disabled:opacity-50 border border-line bg-surface text-ink hover:bg-surface-2;
+  }
+  .carte {
+    @apply rounded-2xl border border-line bg-surface shadow-[0_1px_0_rgba(0,0,0,0.03)];
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
