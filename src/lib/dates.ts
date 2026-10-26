@@ -42,3 +42,19 @@ export const minutesEntre = (debut: string, fin: string) => {
   const m = (h: string) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5))
   return Math.max(0, m(fin) - m(debut))
 }
+
+/** Lundi de la semaine contenant `s`. */
+export const lundiDe = (s: ISODate) => ajouterJours(s, -((jourDe(s) + 6) % 7))
+
+export const enMinutes = (h: string) => Number(h.slice(0, 2)) * 60 + Number(h.slice(3, 5))
+export const enHeure = (m: number) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`
+
+/** Numéro de semaine ISO. */
+export function numeroSemaine(s: ISODate) {
+  const d = fromISO(s)
+  d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7))
+  const j4 = new Date(d.getFullYear(), 0, 4)
+  return 1 + Math.round(((d.getTime() - j4.getTime()) / 864e5 - 3 + ((j4.getDay() + 6) % 7)) / 7)
+}
+
+export const moisAnnee = (s: ISODate) => fromISO(s).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })

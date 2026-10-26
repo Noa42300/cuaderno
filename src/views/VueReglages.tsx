@@ -4,14 +4,13 @@ import { exporterTout, importerTout, telecharger } from '../db/backup'
 import { sanitizeForPublic } from '../db/sanitize'
 import { CECRL, NIVEAUX, type Alternance, type Classe, type Creneau, type JourSemaine, type Theme } from '../db/types'
 import { JOURS, aujourdhui, minutesEntre } from '../lib/dates'
-import { empreintePin, nouveauSel, pinValide } from '../lib/pin'
 import { useQuery } from '../lib/hooks'
 import { PastilleClasse, Vide } from '../components/ui'
 
 const ONGLETS = [
   ['classes', 'Mes classes'],
   ['edt', 'Emploi du temps'],
-  ['general', 'Général & sécurité'],
+  ['general', 'Général'],
   ['sauvegarde', 'Sauvegarde'],
 ] as const
 
@@ -192,20 +191,10 @@ function Edt() {
   )
 }
 
-// ——— Général & sécurité
+// ——— Général
 function General() {
   const r = useQuery(getReglages, [])
-  const [pin, setPin] = useState({ actuel: '', nouveau: '', msg: '' })
   if (!r) return null
-
-  async function changerPin(e: React.FormEvent) {
-    e.preventDefault()
-    if ((await empreintePin(pin.actuel, r!.pinSel)) !== r!.pinHash) return setPin({ ...pin, msg: 'Code actuel incorrect.' })
-    if (!pinValide(pin.nouveau)) return setPin({ ...pin, msg: 'Le nouveau code doit comporter 4 à 8 chiffres.' })
-    const sel = nouveauSel()
-    await saveReglages({ pinSel: sel, pinHash: await empreintePin(pin.nouveau, sel) })
-    setPin({ actuel: '', nouveau: '', msg: '✓ Code modifié.' })
-  }
 
   return (
     <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -235,24 +224,14 @@ function General() {
           <span className="label">Un lundi de semaine A (alternance A/B — laisser vide si pas d’alternance)</span>
           <input type="date" className="champ w-auto" value={r.lundiSemaineA} onChange={(e) => saveReglages({ lundiSemaineA: e.target.value })} />
         </label>
+        <span className="label mt-3">Heures affichées dans l’agenda</span>
+        <div className="flex items-center gap-2">
+          <input type="time" step={3600} className="champ w-auto" value={r.heureDebutAgenda} onChange={(e) => e.target.value && saveReglages({ heureDebutAgenda: e.target.value.slice(0, 2) + ':00' })} aria-label="De" />
+          <span>à</span>
+          <input type="time" step={3600} className="champ w-auto" value={r.heureFinAgenda} onChange={(e) => e.target.value && saveReglages({ heureFinAgenda: e.target.value.slice(0, 2) + ':00' })} aria-label="À" />
+        </div>
       </section>
 
-      <section className="carte p-4 lg:col-span-2">
-        <h2 className="mb-1 text-lg font-semibold">Code PIN</h2>
-        <p className="mb-3 text-sm text-muted">
-          Le code empêche d’ouvrir l’appli sans toi. Il ne chiffre pas les données : protège aussi ta session Mac / ton iPhone par un mot de passe.
-        </p>
-        <form onSubmit={changerPin} className="flex flex-col gap-2 sm:flex-row sm:items-end">
-          <label><span className="label">Code actuel</span><input type="password" inputMode="numeric" className="champ" value={pin.actuel} onChange={(e) => setPin({ ...pin, actuel: e.target.value.replace(/\D/g, '') })} /></label>
-          <label><span className="label">Nouveau code</span><input type="password" inputMode="numeric" className="champ" value={pin.nouveau} onChange={(e) => setPin({ ...pin, nouveau: e.target.value.replace(/\D/g, '') })} /></label>
-          <button className="btn-primary">Changer</button>
-        </form>
-        {pin.msg && <p className="mt-2 text-sm font-bold" role="status">{pin.msg}</p>}
-        <label className="mt-4 block">
-          <span className="label">Reverrouiller après (minutes en arrière-plan)</span>
-          <input type="number" min={1} className="champ w-28" value={r.verrouMinutes} onChange={(e) => saveReglages({ verrouMinutes: Math.max(1, Number(e.target.value)) })} />
-        </label>
-      </section>
     </div>
   )
 }

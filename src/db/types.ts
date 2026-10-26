@@ -58,12 +58,33 @@ export interface Etape {
 
 export type StatutSeance = 'prevue' | 'faite' | 'annulee'
 
+/** Exercice d'une fiche élève : TOUJOURS un exemple résolu en tête. */
+export interface Exercice {
+  id: ID
+  consigne: string
+  exemple: string // ex. « Frida ___ mexicana. → Frida es mexicana. »
+  items: string // une ligne = un item
+  corrige: string // une ligne = une réponse
+}
+
+/** Diapositive à projeter. `aReveler` : une ligne = un élément révélé au clic. */
+export interface Diapo {
+  id: ID
+  titre: string
+  texte: string
+  image: string // URL https://… ou « pj:<id> » (image en pièce jointe)
+  aReveler: string
+}
+
 export interface Seance {
   id: ID
   classeId: ID
   date: ISODate | null // null = séance de bibliothèque (non posée)
   creneauId: ID | null
+  debut: HHMM | '' // horaire (copié du créneau, ou saisi hors EDT)
+  fin: HHMM | ''
   sequenceId: ID | null
+  ordre: number // position dans la séquence
   titre: string
   statut: StatutSeance
   dureeMin: number
@@ -86,6 +107,8 @@ export interface Seance {
   differenciation: { fragiles: string; aLaise: string }
   obstacles: string
   correction: string
+  exercices: Exercice[]
+  diapos: Diapo[]
   bilan: string // après la séance
   creeLe: string
   modifieLe: string
@@ -129,6 +152,9 @@ export interface Sequence {
   tacheFinale: string
   evaluation: string
   cecrlVise: Cecrl
+  dateDebut: ISODate | ''
+  dateFin: ISODate | ''
+  couleur: string
   notes: string
 }
 
@@ -165,9 +191,9 @@ export interface Reglages {
   joursTravailles: JourSemaine[]
   /** Un lundi de semaine A (pour l'alternance A/B). Vide = pas d'alternance. */
   lundiSemaineA: ISODate | ''
-  pinHash: string
-  pinSel: string
-  verrouMinutes: number
+  /** Plage horaire affichée dans l'agenda */
+  heureDebutAgenda: HHMM
+  heureFinAgenda: HHMM
 }
 
 export const STORES = [

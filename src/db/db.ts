@@ -118,13 +118,13 @@ export const REGLAGES_DEFAUT: Reglages = {
   theme: 'systeme',
   joursTravailles: [1, 2, 3, 4, 5],
   lundiSemaineA: '',
-  pinHash: '',
-  pinSel: '',
-  verrouMinutes: 10,
+  heureDebutAgenda: '08:00',
+  heureFinAgenda: '18:00',
 }
 
 export async function getReglages(): Promise<Reglages> {
-  return { ...REGLAGES_DEFAUT, ...((await get<Reglages>('meta', 'reglages')) ?? {}) }
+  const { pinHash: _h, pinSel: _s, verrouMinutes: _v, ...r } = ((await get('meta', 'reglages')) ?? {}) as Record<string, unknown>
+  return { ...REGLAGES_DEFAUT, ...(r as Partial<Reglages>) }
 }
 export async function saveReglages(patch: Partial<Reglages>) {
   return put('meta', { ...(await getReglages()), ...patch, id: 'reglages' })

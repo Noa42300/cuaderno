@@ -4,7 +4,7 @@ import type { Seance } from './types'
 /**
  * Prépare un `journal.json` PUBLIABLE (synchro lecture seule).
  * Liste BLANCHE : seul ce qui est explicitement listé ici sort.
- * Tout le reste — élèves, observations, pièces jointes, réglages (PIN),
+ * Tout le reste — élèves, observations, pièces jointes, réglages,
  * rappels (réunions, rencontres parents), bilans — est retiré.
  */
 export interface JournalPublic {

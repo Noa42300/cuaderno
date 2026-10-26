@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { all, delSeance, get, put, uid } from '../db/db'
-import { ACTIVITES, CECRL, type Activite, type Classe, type Etape, type Seance } from '../db/types'
+import { all, byIndex, delSeance, get, put, uid } from '../db/db'
+import { normaliserSeance, normaliserSequence } from '../db/modeles'
+import { ACTIVITES, CECRL, type Activite, type Classe, type Diapo, type Etape, type Exercice, type PieceJointe, type Seance, type Sequence } from '../db/types'
 import { aujourdhui, formatLong } from '../lib/dates'
 import { aller, useQuery } from '../lib/hooks'
 import { NATURES_SUPPORT, PROGRAMMES, problemeVideo } from '../lib/programmes'
@@ -10,13 +11,15 @@ type Etat = 'charge' | 'enregistre' | 'modifie'
 
 export default function EditeurSeance({ id }: { id?: string }) {
   const classes = useQuery(() => all<Classe>('classes'), [])
+  const sequences = useQuery(async () => (await all<Sequence>('sequences')).map(normaliserSequence), [])
+  const images = useQuery(async () => (await byIndex<PieceJointe>('piecesJointes', 'seanceId', id ?? '')).filter((p) => p.type.startsWith('image/')), [id])
   const [s, setS] = useState<Seance | null | undefined>()
   const [etat, setEtat] = useState<Etat>('charge')
   const premier = useRef(true)
 
   useEffect(() => {
     premier.current = true
-    if (id) get<Seance>('seances', id).then((x) => setS(x ?? null))
+    if (id) get<Seance>('seances', id).then((x) => setS(x ? normaliserSeance(x) : null))
   }, [id])
 
   // Enregistrement automatique (0,6 s après la dernière frappe).
@@ -31,7 +34,7 @@ export default function EditeurSeance({ id }: { id?: string }) {
     return () => clearTimeout(t)
   }, [s])
 
-  if (s === undefined || !classes) return null
+  if (s === undefined || !classes || !sequences) return null
   if (s === null) return <p className="mt-6">Séance introuvable. <a className="text-primary underline" href="#/jour">Retour</a></p>
 
   const maj = (patch: Partial<Seance>) => setS({ ...s, ...patch })
@@ -50,15 +53,18 @@ export default function EditeurSeance({ id }: { id?: string }) {
   async function supprimer() {
     if (!confirm('Supprimer définitivement cette séance (et ses devoirs) ?')) return
     await delSeance(s!.id)
-    aller('jour', s!.date ?? aujourdhui())
+    aller('agenda', 'jour', s!.date ?? aujourdhui())
   }
 
   return (
     <div>
       <div className="no-print sticky top-0 z-10 -mx-4 flex items-center justify-between gap-2 border-b border-line bg-bg/95 px-4 py-2 backdrop-blur md:-mx-8 md:px-8">
-        <a href={`#/jour/${s.date ?? aujourdhui()}`} className="font-bold text-azulejo hover:underline">‹ Retour au jour</a>
-        <span className="text-sm text-muted" aria-live="polite">
-          {etat === 'modifie' ? 'Enregistrement…' : etat === 'enregistre' ? '✓ Enregistré' : ''}
+        <a href={s.date ? `#/agenda/jour/${s.date}` : s.sequenceId ? `#/sequence/${s.sequenceId}` : '#/sequences'} className="font-bold text-azulejo hover:underline">
+          ‹ {s.date ? 'Agenda' : s.sequenceId ? 'Séquence' : 'Bibliothèque'}
+        </a>
+        <span className="flex items-center gap-3">
+          <span className="text-sm text-muted" aria-live="polite">{etat === 'modifie' ? 'Enregistrement…' : etat === 'enregistre' ? '✓ Enregistré' : ''}</span>
+          <a href={`#/seance/${s.id}/documents`} className="btn-primary py-1.5">📄 Documents & PDF</a>
         </span>
       </div>
 
@@ -72,6 +78,12 @@ export default function EditeurSeance({ id }: { id?: string }) {
 
       <Bloc titre="Cadre">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Champ label="Séquence">
+            <select className="champ" value={s.sequenceId ?? ''} onChange={(e) => maj({ sequenceId: e.target.value || null })}>
+              <option value="">— Aucune —</option>
+              {sequences.map((q) => <option key={q.id} value={q.id}>{q.titre || 'Séquence sans titre'}</option>)}
+            </select>
+          </Champ>
           <Champ label="Classe">
             <select className="champ" value={s.classeId} onChange={(e) => maj({ classeId: e.target.value })}>
               {classes.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -80,6 +92,14 @@ export default function EditeurSeance({ id }: { id?: string }) {
           <Champ label="Date">
             <input type="date" className="champ" value={s.date ?? ''} onChange={(e) => maj({ date: e.target.value || null })} />
           </Champ>
+          {!s.creneauId && s.date && (
+            <Champ label="Horaire (hors emploi du temps)">
+              <div className="flex gap-1">
+                <input type="time" className="champ" value={s.debut} onChange={(e) => maj({ debut: e.target.value })} aria-label="Début" />
+                <input type="time" className="champ" value={s.fin} onChange={(e) => maj({ fin: e.target.value })} aria-label="Fin" />
+              </div>
+            </Champ>
+          )}
           <Champ label="Durée (min)">
             <input type="number" min={5} step={5} className="champ" value={s.dureeMin} onChange={(e) => maj({ dureeMin: Number(e.target.value) })} />
           </Champ>
@@ -229,6 +249,67 @@ export default function EditeurSeance({ id }: { id?: string }) {
 
       <Bloc titre="Correction attendue">
         <textarea rows={4} className="champ" placeholder="Réponses attendues, production visée." {...champ('correction')} />
+      </Bloc>
+
+      <Bloc titre="Fiche d’exercices" note={<span className="text-sm text-muted">un exemple résolu en tête de chaque exercice</span>}>
+        <ol className="flex flex-col gap-3">
+          {s.exercices.map((ex, i) => {
+            const majEx = (patch: Partial<Exercice>) => maj({ exercices: s.exercices.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
+            return (
+              <li key={ex.id} className="rounded-xl border border-line bg-surface-2/50 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-azulejo text-sm font-bold text-white dark:text-bg">{i + 1}</span>
+                  <input className="champ" placeholder="Consigne (ex. Complète avec ser ou estar.)" value={ex.consigne} onChange={(e) => majEx({ consigne: e.target.value })} aria-label="Consigne" />
+                  <button type="button" className="btn-ghost px-2 py-1 text-grenat" onClick={() => maj({ exercices: s.exercices.filter((_, j) => j !== i) })} aria-label="Supprimer l’exercice">✕</button>
+                </div>
+                <label className="mt-2 block"><span className="label">Exemple résolu</span>
+                  <input className={`champ ${ex.exemple.trim() ? '' : 'border-grenat'}`} placeholder="Frida ___ mexicana. → Frida es mexicana." value={ex.exemple} onChange={(e) => majEx({ exemple: e.target.value })} />
+                </label>
+                <div className="mt-2 grid gap-2 md:grid-cols-2">
+                  <label><span className="label">Items (un par ligne)</span><textarea rows={5} className="champ" value={ex.items} onChange={(e) => majEx({ items: e.target.value })} /></label>
+                  <label><span className="label">Corrigé (une réponse par ligne)</span><textarea rows={5} className="champ" value={ex.corrige} onChange={(e) => majEx({ corrige: e.target.value })} /></label>
+                </div>
+              </li>
+            )
+          })}
+        </ol>
+        <button type="button" className="btn-ghost mt-3" onClick={() => maj({ exercices: [...s.exercices, { id: uid(), consigne: '', exemple: '', items: '', corrige: '' }] })}>+ Ajouter un exercice</button>
+      </Bloc>
+
+      <Bloc titre="Diaporama" note={<a href={`#/seance/${s.id}/documents`} className="text-sm font-bold text-azulejo hover:underline">▶ Voir / projeter</a>}>
+        <ol className="flex flex-col gap-3">
+          {s.diapos.map((d, i) => {
+            const majD = (patch: Partial<Diapo>) => maj({ diapos: s.diapos.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
+            const dep = (k: -1 | 1) => { const t = [...s.diapos]; [t[i], t[i + k]] = [t[i + k], t[i]]; maj({ diapos: t }) }
+            return (
+              <li key={d.id} className="rounded-xl border border-line bg-surface-2/50 p-3">
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 text-sm font-bold text-muted">{i + 1}</span>
+                  <input className="champ font-bold" placeholder="Titre de la diapo" value={d.titre} onChange={(e) => majD({ titre: e.target.value })} aria-label="Titre de la diapo" />
+                  <button type="button" className="btn-ghost px-2 py-1" disabled={i === 0} onClick={() => dep(-1)} aria-label="Monter">↑</button>
+                  <button type="button" className="btn-ghost px-2 py-1" disabled={i === s.diapos.length - 1} onClick={() => dep(1)} aria-label="Descendre">↓</button>
+                  <button type="button" className="btn-ghost px-2 py-1 text-grenat" onClick={() => maj({ diapos: s.diapos.filter((_, j) => j !== i) })} aria-label="Supprimer la diapo">✕</button>
+                </div>
+                <div className="mt-2 grid gap-2 md:grid-cols-2">
+                  <label><span className="label">Texte affiché</span><textarea rows={3} className="champ" value={d.texte} onChange={(e) => majD({ texte: e.target.value })} /></label>
+                  <label><span className="label">Éléments à révéler au clic (un par ligne)</span><textarea rows={3} className="champ" value={d.aReveler} onChange={(e) => majD({ aReveler: e.target.value })} /></label>
+                </div>
+                <label className="mt-2 block"><span className="label">Image (adresse https://… d’une image, ou une image en pièce jointe)</span>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input className="champ" placeholder="https://upload.wikimedia.org/…" value={d.image.startsWith('pj:') ? '' : d.image} onChange={(e) => majD({ image: e.target.value })} />
+                    {images && images.length > 0 && (
+                      <select className="champ sm:w-64" value={d.image.startsWith('pj:') ? d.image : ''} onChange={(e) => majD({ image: e.target.value })} aria-label="Image en pièce jointe">
+                        <option value="">— Pièce jointe —</option>
+                        {images.map((p) => <option key={p.id} value={`pj:${p.id}`}>{p.nom}</option>)}
+                      </select>
+                    )}
+                  </div>
+                </label>
+              </li>
+            )
+          })}
+        </ol>
+        <button type="button" className="btn-ghost mt-3" onClick={() => maj({ diapos: [...s.diapos, { id: uid(), titre: '', texte: '', image: '', aReveler: '' }] })}>+ Ajouter une diapo</button>
       </Bloc>
 
       <Bloc titre="Bilan (après la séance)">

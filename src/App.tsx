@@ -3,10 +3,12 @@ import { getReglages, onDbChange } from './db/db'
 import type { Reglages } from './db/types'
 import { useRoute } from './lib/hooks'
 import { aujourdhui } from './lib/dates'
-import Verrou from './views/Verrou'
 import Shell from './components/Shell'
-import VueJour from './views/VueJour'
+import Agenda from './views/Agenda'
 import EditeurSeance from './views/EditeurSeance'
+import Documents from './views/Documents'
+import Sequences, { EditeurSequence } from './views/Sequences'
+import Generateur from './views/Generateur'
 import VueReglages from './views/VueReglages'
 import BientotLa from './views/BientotLa'
 
@@ -17,7 +19,6 @@ function appliquerTheme(theme: Reglages['theme']) {
 
 export default function App() {
   const [reglages, setReglages] = useState<Reglages>()
-  const [deverrouille, setDeverrouille] = useState(false)
 
   useEffect(() => {
     const charger = () => getReglages().then(setReglages)
@@ -34,19 +35,7 @@ export default function App() {
     return () => mq.removeEventListener('change', f)
   }, [reglages?.theme])
 
-  // Reverrouillage après X minutes en arrière-plan.
-  useEffect(() => {
-    let cacheLe = 0
-    const f = () => {
-      if (document.visibilityState === 'hidden') cacheLe = Date.now()
-      else if (cacheLe && reglages && Date.now() - cacheLe > reglages.verrouMinutes * 60_000) setDeverrouille(false)
-    }
-    document.addEventListener('visibilitychange', f)
-    return () => document.removeEventListener('visibilitychange', f)
-  }, [reglages?.verrouMinutes])
-
   if (!reglages) return null
-  if (!deverrouille) return <Verrou reglages={reglages} onOuvert={() => setDeverrouille(true)} />
   return (
     <Shell>
       <Routes />
@@ -55,13 +44,21 @@ export default function App() {
 }
 
 function Routes() {
-  const [page, a] = useRoute()
+  const [page, a, b] = useRoute()
   switch (page) {
     case undefined:
+    case 'agenda':
+      return <Agenda mode={a === 'jour' ? 'jour' : 'semaine'} date={b ?? aujourdhui()} />
     case 'jour':
-      return <VueJour date={a ?? aujourdhui()} />
+      return <Agenda mode="jour" date={a ?? aujourdhui()} />
     case 'seance':
-      return <EditeurSeance id={a} />
+      return b === 'documents' ? <Documents id={a} /> : <EditeurSeance id={a} />
+    case 'sequences':
+      return <Sequences />
+    case 'sequence':
+      return <EditeurSequence id={a} />
+    case 'generateur':
+      return <Generateur sequenceId={a} />
     case 'reglages':
       return <VueReglages onglet={a} />
     default:

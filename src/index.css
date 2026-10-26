@@ -111,8 +111,59 @@ h3,
   }
 }
 
+/* ——— Documents imprimables : toujours sur papier blanc, couleurs fixes (hex) ——— */
+.feuille {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 14mm 15mm;
+  background: #ffffff;
+  color: #2b2b2b;
+  font-family: var(--font-sans);
+  font-size: 11pt;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+.feuille h1,
+.feuille h2,
+.feuille h3 {
+  font-family: var(--font-titre);
+  color: #2b2b2b;
+}
+.feuille .frise-doc {
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #c84b31 0 12px, #e9a500 12px 24px);
+  border-radius: 3px;
+}
+.diapo {
+  container-type: inline-size;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: #fbf4e6;
+  color: #2b2b2b;
+  font-family: var(--font-sans);
+  position: relative;
+  overflow: hidden;
+}
+
 @media print {
   .no-print {
     display: none !important;
+  }
+  body:has(.zone-impression) * {
+    visibility: hidden;
+  }
+  body:has(.zone-impression) .zone-impression,
+  body:has(.zone-impression) .zone-impression * {
+    visibility: visible;
+  }
+  .zone-impression {
+    position: absolute;
+    left: 0;
+    top: 0;
+    box-shadow: none !important;
+  }
+  .zone-impression .diapo {
+    break-after: page;
+    width: 297mm;
   }
 }

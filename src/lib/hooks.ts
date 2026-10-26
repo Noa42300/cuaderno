@@ -33,3 +33,15 @@ export function useRoute(): string[] {
 export const aller = (...parts: string[]) => {
   location.hash = '/' + parts.map(encodeURIComponent).join('/')
 }
+
+/** Vrai sur petit écran (iPhone). */
+export function useEstMobile() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = matchMedia('(max-width: 767px)')
+      mq.addEventListener('change', cb)
+      return () => mq.removeEventListener('change', cb)
+    },
+    () => matchMedia('(max-width: 767px)').matches,
+  )
+}

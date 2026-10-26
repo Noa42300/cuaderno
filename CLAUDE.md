@@ -3,6 +3,9 @@
 Mémoire commune du projet. **À tenir à jour à chaque décision.**
 Utilisatrice : professeure d’espagnol, second degré (collège + lycée), non développeuse.
 → Expliquer simplement, en français, par petites étapes vérifiables.
+Dépôt : `Noa42300/cuaderno`. **Chaque modification validée est commitée et poussée directement sur
+`main`** (demande de la prof) → GitHub Actions publie sur https://noa42300.github.io/cuaderno/ et
+l’appli installée se met à jour seule. Toujours `npm run build` avant de pousser.
 
 ## 1. Principes non négociables
 
@@ -18,18 +21,23 @@ Utilisatrice : professeure d’espagnol, second degré (collège + lycée), non 
   recharge la page sur `controllerchange`, vérifie les mises à jour toutes les 30 min et au retour
   au premier plan. Les formulaires s’enregistrent automatiquement (0,6 s) pour qu’un rechargement ne
   perde rien.
-- **Verrou PIN** (4–8 chiffres) : seule une empreinte PBKDF2 salée est stockée. C’est un verrou
-  d’usage, **pas un chiffrement** — le dire honnêtement. Reverrouillage après N min en arrière-plan.
+- **Pas de code PIN** (supprimé le 2026-10-26 à la demande de la prof). La seule protection est le
+  mot de passe de session du Mac / de l’iPhone. Les anciens champs `pinHash/pinSel/verrouMinutes`
+  sont ignorés et effacés à la prochaine sauvegarde des réglages.
+- Images de diaporama : une URL externe (ex. Wikimedia) déclenche une requête vers ce site (aucune
+  donnée élève envoyée). Pour du 100 % hors ligne : image en pièce jointe (`pj:<id>`).
 - **Synchro publique (plus tard)** : `journal.json` produit par `sanitizeForPublic()`
   (`src/db/sanitize.ts`), en **liste blanche**. Exclus : élèves, observations, pièces jointes,
-  réglages/PIN, rappels, bilans, différenciation, notes de séquence. Les prénoms d’élèves trouvés dans
+  réglages, rappels, bilans, différenciation, notes de séquence. Les prénoms d’élèves trouvés dans
   les textes sont masqués « [élève] ». Relecture = fusion non destructive (à implémenter).
 
 ## 2. Stack
 
 Vite 8 · React 19 · TypeScript 7 · Tailwind CSS 4 (config CSS dans `src/index.css`) ·
-vite-plugin-pwa · idb. PDF prévu : html2canvas + jsPDF, téléchargement par ancre `<a download>`
-(pas `window.open`, qui échoue en PWA installée) + impression navigateur en secours.
+vite-plugin-pwa · idb. PDF : **html2canvas-pro** (gère les couleurs CSS modernes de Tailwind 4,
+contrairement à html2canvas) + jsPDF, chargés à la demande (`src/lib/pdf.ts`). Téléchargement par
+ancre `<a download>` (pas `window.open`, qui échoue en PWA installée) + impression navigateur en
+secours (`imprimer()` : classe `.zone-impression`). Découpage des pages sur les éléments `data-bloc`.
 
 Commandes : `npm run dev`, `npm run build`, `npm run icons` (régénère les PNG depuis
 `public/favicon.svg`, nécessite Playwright en local ; PNG versionnés).
@@ -43,9 +51,12 @@ src/
   db/modeles.ts    fabriques (nouvelleSeance), créneaux du jour, prochain cours
   db/backup.ts     export/import JSON complet, téléchargement
   db/sanitize.ts   sanitizeForPublic()
-  lib/             dates (A/B, fecha), pin, hooks (useQuery, routeur hash), programmes
+  lib/generateur.ts générateur déterministe de séance (POINTS_LANGUE : règle, obstacles, exercice)
+  lib/pdf.ts       export PDF (feuille A4, diapos paysage), impression
+  lib/             dates (A/B, fecha, semaine), hooks (useQuery, routeur hash, useEstMobile), programmes
   components/      Shell (nav latérale Mac / onglets iPhone), Logo, ui
-  views/           Verrou, VueJour, EditeurSeance, VueReglages, BientotLa
+  views/           Agenda (semaine/jour), EditeurSeance, Documents, Sequences (+ EditeurSequence,
+                   bibliothèque), Generateur, VueReglages, BientotLa
 ```
 
 ## 4. Modèle de données (IndexedDB `cuaderno`, version 1)
@@ -61,9 +72,16 @@ Stores : `classes`, `creneaux`, `seances`, `devoirs`, `rappels`, `sequences`, `e
   grammatical, phonologique, pragmatique), programme, support (titre, nature, source, url),
   videoUrl (UNE vidéo), tâche, trace écrite, déroulement (étapes : titre, durée, AL, contenu),
   différenciation (fragiles / à l’aise), obstacles, correction, bilan.
+  + `debut/fin` (horaire, copié du créneau ou saisi hors EDT), `ordre` (dans la séquence),
+  `exercices[]` (consigne, **exemple résolu**, items, corrigé — une ligne par item),
+  `diapos[]` (titre, texte, image URL ou `pj:<id>`, éléments à révéler — une ligne par élément).
+  Les anciennes séances sont complétées à la lecture par `normaliserSeance()`.
 - **Devoir** : classe, donné le, pour le, séance liée, texte. Date par défaut = prochain cours de la classe.
 - **Rappel** : date, heure, type (réunion, conseil, sortie, AP, parents, autre), titre.
-- **Séquence** : titre, niveau, classes, programme, projet final, tâche finale, évaluation, CECRL.
+- **Séquence** : titre, niveau, classes, programme, projet final, tâche finale, évaluation, CECRL,
+  dates début/fin (bandeau dans l’agenda), couleur. `normaliserSequence()` pour les anciennes.
+- **Poser une séance** (`poserSeance`) : date + classe → premier créneau libre de la classe ce
+  jour-là, sinon hors EDT. « Poser automatiquement » une séquence = cours successifs de la classe.
 - **Élève / Observation** : locaux uniquement ; observations datées par activité langagière.
 
 **Migrations** : ne jamais modifier une migration livrée ; ajouter une fonction à `MIGRATIONS`
@@ -113,19 +131,22 @@ Réglages › Mes classes. À venir : heures faites (séances « faite ») / pr�
 
 ## 9. Feuille de route
 
-- [x] Étape 1 : projet, PWA, IndexedDB, PIN, thème, navigation, Vue Jour, éditeur de séance,
-  réglages (classes, EDT A/B, jours, PIN, sauvegarde, journal.json).
-- [ ] Documents à imprimer (fiche de prép A4, diaporama à révéler, trace écrite, fiche d’exercices,
-  pièces jointes) + aperçu plein écran, PDF, impression.
-- [ ] Séquences & bibliothèque (poser une séance sur un jour/une classe).
+- [x] Étape 1 : projet, PWA, IndexedDB, thème, navigation, éditeur de séance,
+  réglages (classes, EDT A/B, jours, sauvegarde, journal.json).
+- [x] Étape 2 : agenda type « vrai agenda » (grille horaire semaine + jour ; ligne du haut :
+  séquences en cours, rappels, séances sans horaire ; clic sur un vide = nouvelle séance) ;
+  séquences & bibliothèque, pose manuelle et automatique dans l’agenda ; générateur de séance ;
+  documents (fiche de prép, diaporama projetable à révéler, leçon, exercices, corrigé, pièces
+  jointes) avec PDF, impression, plein écran ; suppression du PIN.
 - [ ] Progressions annuelles par niveau.
 - [ ] Rituels de début de cours.
 - [ ] Suivi élèves + observations (local).
-- [ ] Générateur de squelette de séance (local, déterministe).
 - [ ] Suivi des volumes horaires annuels.
 - [ ] Synchro lecture seule `journal.json` (fusion non destructive).
 
 ## 10. Décisions prises
 
 - 2026-10-26 : nom « Cuaderno » ; routage par hash ; polices auto-hébergées ; teja foncée pour le
-  texte (contraste AA) ; alternance semaines A/B prise en charge ; PIN = verrou, pas chiffrement.
+  texte (contraste AA) ; alternance semaines A/B prise en charge.
+- 2026-10-26 : PIN supprimé ; publication directe sur `main` ; agenda en grille horaire (sur iPhone :
+  vue jour + bandeau de la semaine) ; générateur intégré ; html2canvas-pro pour les PDF.
