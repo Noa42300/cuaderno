@@ -17,7 +17,7 @@ const page = await browser.newPage()
 for (const [nom, taille, src, marge] of sorties) {
   const pad = Math.round(taille * marge)
   await page.setViewportSize({ width: taille, height: taille })
-  await page.setContent(`<html><body style="margin:0;background:${marge ? '#C84B31' : 'transparent'}">
+  await page.setContent(`<html><body style="margin:0;background:${marge ? '#1F3A5F' : 'transparent'}">
     <div style="padding:${pad}px;width:${taille - 2 * pad}px;height:${taille - 2 * pad}px">${src.replace('<svg', '<svg width="100%" height="100%"')}</div></body></html>`)
   writeFileSync(new URL(`../public/${nom}`, import.meta.url), await page.screenshot({ omitBackground: !marge }))
 }

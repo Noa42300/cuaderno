@@ -2,7 +2,7 @@
 export default function Logo({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
-      <rect width="64" height="64" rx="14" fill="#C84B31" />
+      <rect width="64" height="64" rx="14" fill="#1F3A5F" />
       <rect x="6" y="6" width="52" height="52" rx="9" fill="#FBF4E6" />
       <path d="M32 10 L54 32 L32 54 L10 32 Z" fill="#1C6E8C" />
       <path d="M32 18 L46 32 L32 46 L18 32 Z" fill="#FBF4E6" />

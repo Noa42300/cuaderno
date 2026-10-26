@@ -144,7 +144,7 @@ function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; cr
           <h3 data-bloc style={{ fontSize: '12.5pt', borderBottom: '2px solid #1C6E8C', paddingBottom: 2, marginBottom: 4 }}>Déroulement</h3>
           {s.deroulement.map((e, i) => (
             <div key={e.id} data-bloc style={{ display: 'grid', gridTemplateColumns: '18mm 1fr', gap: 8, padding: '6px 0', borderBottom: '1px solid #E6D8BE' }}>
-              <div style={{ fontWeight: 700, color: '#B03F27' }}>{e.duree} min<div style={{ fontSize: '8.5pt', color: '#5E554C', fontWeight: 400 }}>{e.activites.join(' ')}</div></div>
+              <div style={{ fontWeight: 700, color: '#1F3A5F' }}>{e.duree} min<div style={{ fontSize: '8.5pt', color: '#5E554C', fontWeight: 400 }}>{e.activites.join(' ')}</div></div>
               <div><b>{i + 1}. {e.titre}</b><Lignes texte={e.contenu} /></div>
             </div>
           ))}
@@ -186,7 +186,7 @@ function TraceEcrite({ s }: { s: Seance }) {
   // Les blocs séparés par une ligne vide deviennent des encadrés.
   const blocs: string[][] = [[]]
   for (const l of lignes) l.trim() ? blocs[blocs.length - 1].push(l) : blocs[blocs.length - 1].length && blocs.push([])
-  const couleurs = ['#1C6E8C', '#B03F27', '#A11C3A', '#D98A2B']
+  const couleurs = ['#1C6E8C', '#1F3A5F', '#A11C3A', '#D98A2B']
   return (
     <div>
       <EnteteEleve titre="Lección" s={s} />
@@ -235,11 +235,11 @@ function FicheExercices({ s, corrige }: { s: Seance; corrige?: boolean }) {
               {items.map((it, j) => (
                 <li key={j} style={{ padding: '5px 0', borderBottom: corrige ? undefined : '1px dotted #C7B9A6' }}>
                   {it}
-                  {corrige ? <b style={{ color: '#B03F27' }}> → {rep[j] ?? ''}</b> : <span style={{ display: 'block', height: 18 }} />}
+                  {corrige ? <b style={{ color: '#1F3A5F' }}> → {rep[j] ?? ''}</b> : <span style={{ display: 'block', height: 18 }} />}
                 </li>
               ))}
             </ol>
-            {corrige && rep.length > items.length && <p style={{ color: '#B03F27' }}>{rep.slice(items.length).join(' ')}</p>}
+            {corrige && rep.length > items.length && <p style={{ color: '#1F3A5F' }}>{rep.slice(items.length).join(' ')}</p>}
           </section>
         )
       })}

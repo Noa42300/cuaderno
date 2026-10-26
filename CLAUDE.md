@@ -95,11 +95,13 @@ Réglages › Mes classes. À venir : heures faites (séances « faite ») / pr�
 ## 6. Charte graphique
 
 - Tokens dans `src/index.css` (`:root` / `.dark`), utilisés via Tailwind (`bg-surface`, `text-primary`…).
-- Clair : fond crème `#FBF4E6`, encre `#2B2B2B`, terracotta `#C84B31` (aplats décoratifs uniquement :
-  4,26:1 sur crème, insuffisant pour du texte), **teja foncée `#B03F27` pour textes/boutons** (5,35:1),
+- **Couleur principale : bleu marine `#1F3A5F`** (boutons, menu actif, liens, accents des documents ;
+  10,5:1 sur crème) — choix de la prof le 2026-10-26. Sombre : `#9DB8E0`.
+- Clair : fond crème `#FBF4E6`, encre `#2B2B2B`, terracotta `#C84B31` (frise, aplats décoratifs uniquement :
+  4,26:1 sur crème, insuffisant pour du texte),
   grenat `#A11C3A`, safran `#E9A500` (fond seulement, texte encre dessus), ocre `#D98A2B`,
   azulejo `#1C6E8C` (accent froid, 5,24:1).
-- Sombre : fond `#1E1A17`, primaire `#E5775C`, azulejo `#5FB3D1`, grenat `#E8778C`.
+- Sombre : fond `#1E1A17`, primaire `#9DB8E0`, azulejo `#5FB3D1`, grenat `#E8778C`.
 - Typo : **Fraunces** (titres, caractère) · **Atkinson Hyperlegible** (corps, lisibilité maximale,
   y compris en vidéoprojection).
 - Motifs : `.azulejo` (carreau en fond, discret), `.frise` (triangles teja/safran). Pas de drapeau.
@@ -147,6 +149,6 @@ Réglages › Mes classes. À venir : heures faites (séances « faite ») / pr�
 ## 10. Décisions prises
 
 - 2026-10-26 : nom « Cuaderno » ; routage par hash ; polices auto-hébergées ; teja foncée pour le
-  texte (contraste AA) ; alternance semaines A/B prise en charge.
+  texte (contraste AA, remplacée ensuite par le bleu marine) ; alternance semaines A/B prise en charge.
 - 2026-10-26 : PIN supprimé ; publication directe sur `main` ; agenda en grille horaire (sur iPhone :
   vue jour + bandeau de la semaine) ; générateur intégré ; html2canvas-pro pour les PDF.
