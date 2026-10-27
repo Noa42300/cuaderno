@@ -31,6 +31,8 @@ export interface Classe {
   couleur: string // hex
   heuresHebdo: number // volume horaire hebdo (heures)
   archivee?: boolean
+  /** Point de départ de la progression : à cette date, la classe en est à la séance n° `index` (0 = 1re). */
+  depart?: { date: ISODate; index: number }
 }
 
 /** Jour ISO : 1 = lundi … 6 = samedi */
@@ -99,6 +101,12 @@ export interface Seance {
     pragmatique: string
   }
   programme: string // thématique cycle 4 / axe lycée
+  competences: string // objectifs & compétences (BO, CECRL, socle)
+  progressionRef: string // place dans la programmation / progression
+  organisation: string // organisation & rôle de l'enseignant
+  materiel: string // matériel & supports
+  /** Clé de la séance de progression d'où vient cette fiche (ex. « 5e:2:3 ») */
+  cleProgression: string
   support: { titre: string; nature: string; source: string; url: string }
   videoUrl: string // UNE vidéo précise
   tache: string
@@ -123,13 +131,17 @@ export interface Devoir {
   texte: string
 }
 
-export type TypeRappel = 'reunion' | 'conseil' | 'sortie' | 'ap' | 'parents' | 'autre'
+export type TypeRappel = 'reunion' | 'conseil' | 'equipe' | 'peda' | 'parents' | 'examen' | 'sortie' | 'formation' | 'ap' | 'autre'
 export const TYPES_RAPPEL: Record<TypeRappel, string> = {
   reunion: 'Réunion',
   conseil: 'Conseil de classe',
-  sortie: 'Sortie',
-  ap: 'AP',
+  equipe: 'Réunion d’équipe (langues)',
+  peda: 'Conseil pédagogique',
   parents: 'Rencontre parents',
+  examen: 'Examen / bac blanc / DNB',
+  sortie: 'Sortie / voyage',
+  formation: 'Formation',
+  ap: 'AP',
   autre: 'Autre',
 }
 
@@ -194,6 +206,10 @@ export interface Reglages {
   /** Plage horaire affichée dans l'agenda */
   heureDebutAgenda: HHMM
   heureFinAgenda: HHMM
+  /** Zone de vacances scolaires */
+  zone: 'A' | 'B' | 'C'
+  rentree: ISODate
+  finAnnee: ISODate
 }
 
 export const STORES = [

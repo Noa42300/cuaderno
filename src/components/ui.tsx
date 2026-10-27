@@ -29,11 +29,13 @@ export function PastilleClasse({ classe }: { classe?: Classe }) {
 
 export function Section({ titre, actions, children }: { titre: string; actions?: ReactNode; children: ReactNode }) {
   return (
-    <section className="mt-6">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-xl font-semibold">{titre}</h2>
-        {actions}
-      </div>
+    <section className={titre ? 'mt-6' : 'mt-3'}>
+      {(titre || actions) && (
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="text-xl font-semibold">{titre}</h2>
+          {actions}
+        </div>
+      )}
       {children}
     </section>
   )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { all, del, getReglages, put, uid } from '../db/db'
 import { creneauxDuJour, horaire, nouvelleSeance, normaliserSequence, prochainCours, toutesSeances } from '../db/modeles'
 import { TYPES_RAPPEL, type Classe, type Creneau, type Devoir, type Rappel, type Reglages, type Seance, type Sequence, type TypeRappel } from '../db/types'
@@ -7,6 +7,8 @@ import {
 } from '../lib/dates'
 import { aller, useEstMobile, useQuery } from '../lib/hooks'
 import { BadgeAL, PastilleClasse, Section } from '../components/ui'
+import { enVacances } from '../data/officiel'
+import { indexPlanning, proposition, type SeanceProg } from '../lib/progression'
 
 const PX_MIN = 1.15 // hauteur d'une minute dans la grille
 
@@ -17,6 +19,7 @@ interface Evenement {
   classe?: Classe
   creneau?: Creneau
   seance?: Seance
+  prop?: SeanceProg | null
 }
 
 export default function Agenda({ mode: modeDemande, date }: { mode: 'semaine' | 'jour'; date: string }) {
@@ -31,7 +34,8 @@ export default function Agenda({ mode: modeDemande, date }: { mode: 'semaine' | 
     ])
     return { reglages, classes, creneaux, seances, rappels, devoirs, sequences: sequences.map(normaliserSequence) }
   }, [])
-  if (!data) return null
+  const planning = useMemo(() => (data ? indexPlanning(data.classes, data.creneaux, data.reglages) : null), [data?.classes, data?.creneaux, data?.reglages])
+  if (!data || !planning) return null
   const { reglages, classes, creneaux, seances, rappels, devoirs, sequences } = data
   const classe = (id: string) => classes.find((c) => c.id === id)
 
@@ -46,10 +50,13 @@ export default function Agenda({ mode: modeDemande, date }: { mode: 'semaine' | 
   // ——— Événements positionnés
   const evenementsDu = (d: string): Evenement[] => {
     const duJour = seances.filter((s) => s.date === d)
-    const ev: Evenement[] = creneauxDuJour(d, creneaux, reglages).map((cr) => ({
-      cle: cr.id, debut: enMinutes(cr.debut), fin: enMinutes(cr.fin), classe: classe(cr.classeId), creneau: cr,
-      seance: duJour.find((s) => s.creneauId === cr.id),
-    }))
+    const ev: Evenement[] = (enVacances(d, reglages.zone) ? [] : creneauxDuJour(d, creneaux, reglages)).map((cr) => {
+      const seance = duJour.find((s) => s.creneauId === cr.id)
+      return {
+        cle: cr.id, debut: enMinutes(cr.debut), fin: enMinutes(cr.fin), classe: classe(cr.classeId), creneau: cr, seance,
+        prop: seance ? null : proposition(classe(cr.classeId), planning.get(`${d}|${cr.id}`)),
+      }
+    })
     for (const s of duJour) {
       if (ev.some((e) => e.seance?.id === s.id)) continue
       const h = horaire(s, creneaux)
@@ -64,12 +71,10 @@ export default function Agenda({ mode: modeDemande, date }: { mode: 'semaine' | 
   const hMax = Math.max(enMinutes(reglages.heureFinAgenda), ...tous.map((e) => Math.ceil(e.fin / 60) * 60))
   const heures = Array.from({ length: (hMax - hMin) / 60 }, (_, i) => hMin + i * 60)
 
-  async function ouvrir(e: Evenement, d: string) {
-    if (e.seance) return aller('seance', e.seance.id)
-    if (!e.classe) return
-    const s = nouvelleSeance(e.classe, d, e.creneau)
-    await put('seances', s)
-    aller('seance', s.id)
+  /** Ouvre le cours dans « Hoy », fiche dépliée (créée depuis la progression si besoin). */
+  function ouvrir(e: Evenement, d: string) {
+    if (e.seance && !e.creneau) return aller('seance', e.seance.id)
+    aller('jour', d, e.cle)
   }
 
   return (
@@ -143,6 +148,7 @@ export default function Agenda({ mode: modeDemande, date }: { mode: 'semaine' | 
                     </button>
                   )}
                   <div className="flex flex-col gap-0.5">
+                    {enVacances(d, reglages.zone) && <span className="rounded bg-azulejo/15 px-1.5 py-0.5 text-[11px] font-bold text-azulejo">🏖️ {enVacances(d, reglages.zone)}</span>}
                     {sq.map((q) => (
                       <a key={q.id} href={`#/sequence/${q.id}`} className="truncate rounded px-1.5 py-0.5 text-[11px] font-bold text-white" style={{ background: q.couleur }} title={`Séquence : ${q.titre}`}>
                         🧭 {q.titre || 'Séquence'}
@@ -260,7 +266,7 @@ function Colonne({ date, hMin, heures, evenements, onOuvrir, onVide }: {
                 {hauteur > 60 && <div className="mt-0.5 flex flex-wrap gap-0.5">{s.activites.map((a) => <BadgeAL key={a} a={a} />)}</div>}
               </>
             ) : (
-              <div className="text-muted">✏️ Préparer</div>
+              <div className="truncate text-[13px] italic text-muted">{e.prop ? e.prop.titre.split(' — ').slice(1).join(' — ') : '✏️ Préparer'}</div>
             )}
           </button>
         )
@@ -301,7 +307,7 @@ function DialogueCreation({ date, debut, classes, onFermer }: { date: string; de
   )
 }
 
-function NouveauDevoir({ date, classes, dateDefaut, seanceDe }: { date: string; classes: Classe[]; dateDefaut: (classeId: string) => string; seanceDe: (classeId: string) => string | null }) {
+export function NouveauDevoir({ date, classes, dateDefaut, seanceDe }: { date: string; classes: Classe[]; dateDefaut: (classeId: string) => string; seanceDe: (classeId: string) => string | null }) {
   const [f, setF] = useState({ classeId: '', texte: '', pourLe: '' })
   if (!classes.length) return null
   const cid = f.classeId || classes[0].id
@@ -326,7 +332,7 @@ function NouveauDevoir({ date, classes, dateDefaut, seanceDe }: { date: string; 
   )
 }
 
-function ListeDevoirs({ titre, devoirs, classe, montrerPour }: { titre: string; devoirs: Devoir[]; classe: (id: string) => Classe | undefined; montrerPour?: boolean }) {
+export function ListeDevoirs({ titre, devoirs, classe, montrerPour }: { titre: string; devoirs: Devoir[]; classe: (id: string) => Classe | undefined; montrerPour?: boolean }) {
   return (
     <div className="carte p-4">
       <h3 className="mb-2 font-semibold">{titre}</h3>
@@ -348,17 +354,19 @@ function ListeDevoirs({ titre, devoirs, classe, montrerPour }: { titre: string; 
   )
 }
 
-function Rappels({ date, rappels }: { date: string; rappels: Rappel[] }) {
+export function Rappels({ date, rappels }: { date: string; rappels: Rappel[] }) {
   const [f, setF] = useState({ titre: '', heure: '', type: 'reunion' as TypeRappel })
+  const [ouvert, setOuvert] = useState(false)
   const tries = [...rappels].sort((a, b) => (a.heure || '99').localeCompare(b.heure || '99'))
   async function ajouter(e: React.FormEvent) {
     e.preventDefault()
     if (!f.titre.trim()) return
     await put<Rappel>('rappels', { id: uid(), date, note: '', ...f, titre: f.titre.trim() })
     setF({ titre: '', heure: '', type: 'reunion' })
+    setOuvert(false)
   }
   return (
-    <Section titre="Rappels & rendez-vous">
+    <Section titre={tries.length ? 'Rappels & rendez-vous' : ''}>
       {tries.length > 0 && (
         <ul className="mb-3 flex flex-col gap-2">
           {tries.map((r) => (
@@ -371,6 +379,7 @@ function Rappels({ date, rappels }: { date: string; rappels: Rappel[] }) {
           ))}
         </ul>
       )}
+      {!ouvert ? <button className="no-print text-sm font-bold text-azulejo hover:underline" onClick={() => setOuvert(true)}>+ Rappel / rendez-vous</button> : (
       <form onSubmit={ajouter} className="carte flex flex-col gap-2 p-4">
         <div className="grid grid-cols-[1fr_auto] gap-2">
           <select className="champ" value={f.type} onChange={(e) => setF({ ...f, type: e.target.value as TypeRappel })} aria-label="Type">
@@ -379,8 +388,11 @@ function Rappels({ date, rappels }: { date: string; rappels: Rappel[] }) {
           <input type="time" className="champ" value={f.heure} onChange={(e) => setF({ ...f, heure: e.target.value })} aria-label="Heure" />
         </div>
         <input className="champ" placeholder="Ex. Conseil de classe 3e C" value={f.titre} onChange={(e) => setF({ ...f, titre: e.target.value })} aria-label="Intitulé" />
-        <button className="btn-primary">+ Ajouter le rappel</button>
-      </form>
+        <div className="flex gap-2">
+          <button className="btn-primary flex-1">+ Ajouter le rappel</button>
+          <button type="button" className="btn-ghost" onClick={() => setOuvert(false)}>Annuler</button>
+        </div>
+      </form>)}
     </Section>
   )
 }

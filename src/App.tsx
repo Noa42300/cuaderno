@@ -5,12 +5,18 @@ import { useRoute } from './lib/hooks'
 import { aujourdhui } from './lib/dates'
 import Shell from './components/Shell'
 import Agenda from './views/Agenda'
-import EditeurSeance from './views/EditeurSeance'
+import PageSeance from './views/FicheSeance'
 import Documents from './views/Documents'
 import Sequences, { EditeurSequence } from './views/Sequences'
 import Generateur from './views/Generateur'
 import VueReglages from './views/VueReglages'
 import BientotLa from './views/BientotLa'
+import { Hoy, Semana } from './views/Journee'
+import { Programmation, Progression } from './views/Programmation'
+import { Recursos, Rituales, Volumes } from './views/Annexes'
+import Pizarra from './views/Pizarra'
+import Eleves from './views/Eleves'
+import Reunions from './views/Reunions'
 
 function appliquerTheme(theme: Reglages['theme']) {
   const sombre = theme === 'sombre' || (theme === 'systeme' && matchMedia('(prefers-color-scheme: dark)').matches)
@@ -44,21 +50,41 @@ export default function App() {
 }
 
 function Routes() {
-  const [page, a, b] = useRoute()
+  const [page, a, b, c] = useRoute()
   switch (page) {
     case undefined:
+    case 'hoy':
+      return <Hoy date={aujourdhui()} />
+    case 'jour':
+      return <Hoy date={a ?? aujourdhui()} ouvrir={b} />
+    case 'semana':
+      return <Semana date={a ?? aujourdhui()} />
     case 'agenda':
       return <Agenda mode={a === 'jour' ? 'jour' : 'semaine'} date={b ?? aujourdhui()} />
-    case 'jour':
-      return <Agenda mode="jour" date={a ?? aujourdhui()} />
     case 'seance':
-      return b === 'documents' ? <Documents id={a} /> : <EditeurSeance id={a} />
+      return b === 'documents' ? <Documents id={a} onglet={c} /> : <PageSeance id={a} />
+    case 'programacion':
+      return <Programmation classeId={a} />
+    case 'progresion':
+      return <Progression classeId={a} />
     case 'sequences':
       return <Sequences />
     case 'sequence':
       return <EditeurSequence id={a} />
     case 'generateur':
       return <Generateur sequenceId={a} />
+    case 'recursos':
+      return <Recursos />
+    case 'rituales':
+      return <Rituales classeId={a} />
+    case 'pizarra':
+      return <Pizarra />
+    case 'alumnos':
+      return <Eleves classeId={a} />
+    case 'reuniones':
+      return <Reunions />
+    case 'volumenes':
+      return <Volumes />
     case 'reglages':
       return <VueReglages onglet={a} />
     default:

@@ -120,6 +120,9 @@ export const REGLAGES_DEFAUT: Reglages = {
   lundiSemaineA: '',
   heureDebutAgenda: '08:00',
   heureFinAgenda: '18:00',
+  zone: 'A',
+  rentree: '2026-09-01',
+  finAnnee: '2027-07-03',
 }
 
 export async function getReglages(): Promise<Reglages> {

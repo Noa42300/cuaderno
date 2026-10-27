@@ -5,19 +5,20 @@ import { sanitizeForPublic } from '../db/sanitize'
 import { CECRL, NIVEAUX, type Alternance, type Classe, type Creneau, type JourSemaine, type Theme } from '../db/types'
 import { JOURS, aujourdhui, minutesEntre } from '../lib/dates'
 import { useQuery } from '../lib/hooks'
+import { ajouterClassesInitiales } from '../data/classesInitiales'
 import { PastilleClasse, Vide } from '../components/ui'
 
 const ONGLETS = [
   ['classes', 'Mes classes'],
   ['edt', 'Emploi du temps'],
-  ['general', 'Général'],
+  ['general', 'Général & année scolaire'],
   ['sauvegarde', 'Sauvegarde'],
 ] as const
 
 export default function VueReglages({ onglet = 'classes' }: { onglet?: string }) {
   return (
     <div>
-      <h1 className="mt-2 text-3xl font-semibold">Réglages</h1>
+      <h1 className="mt-2 text-3xl font-semibold">Ajustes <span className="text-xl font-normal text-muted">· paramètres</span></h1>
       <nav className="no-print mt-4 flex gap-1 overflow-x-auto border-b border-line" aria-label="Sections des réglages">
         {ONGLETS.map(([id, l]) => (
           <a key={id} href={`#/reglages/${id}`} aria-current={onglet === id ? 'page' : undefined}
@@ -52,7 +53,12 @@ function Classes() {
           return <CarteClasse key={c.id} c={c} heuresEdt={minEdt / 60} />
         })}
       </div>
-      <button className="btn-primary mt-4" onClick={ajouter}>+ Ajouter une classe</button>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button className="btn-primary" onClick={ajouter}>+ Ajouter une classe</button>
+        <button className="btn-ghost" onClick={async () => { const n = await ajouterClassesInitiales(true); alert(n ? `${n} classe(s) ajoutée(s).` : 'Les 10 classes sont déjà là.') }}>
+          Ajouter mes 10 classes 2026-2027 (manquantes)
+        </button>
+      </div>
     </div>
   )
 }
@@ -224,6 +230,16 @@ function General() {
           <span className="label">Un lundi de semaine A (alternance A/B — laisser vide si pas d’alternance)</span>
           <input type="date" className="champ w-auto" value={r.lundiSemaineA} onChange={(e) => saveReglages({ lundiSemaineA: e.target.value })} />
         </label>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <label><span className="label">Zone de vacances</span>
+            <select className="champ" value={r.zone} onChange={(e) => saveReglages({ zone: e.target.value as 'A' | 'B' | 'C' })}>
+              <option value="A">Zone A</option><option value="B">Zone B</option><option value="C">Zone C</option>
+            </select>
+          </label>
+          <label><span className="label">Rentrée</span><input type="date" className="champ" value={r.rentree} onChange={(e) => e.target.value && saveReglages({ rentree: e.target.value })} /></label>
+          <label><span className="label">Fin d’année</span><input type="date" className="champ" value={r.finAnnee} onChange={(e) => e.target.value && saveReglages({ finAnnee: e.target.value })} /></label>
+        </div>
+        <p className="mt-1 text-xs text-muted">Zone A : Besançon, Bordeaux, Clermont-Ferrand, Dijon, Grenoble, Limoges, Lyon, Poitiers · Zone C : Créteil, Montpellier, Paris, Toulouse, Versailles · Zone B : les autres académies de métropole.</p>
         <span className="label mt-3">Heures affichées dans l’agenda</span>
         <div className="flex items-center gap-2">
           <input type="time" step={3600} className="champ w-auto" value={r.heureDebutAgenda} onChange={(e) => e.target.value && saveReglages({ heureDebutAgenda: e.target.value.slice(0, 2) + ':00' })} aria-label="De" />

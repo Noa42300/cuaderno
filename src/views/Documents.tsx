@@ -17,16 +17,19 @@ const ONGLETS = [
 ] as const
 type Onglet = (typeof ONGLETS)[number][0]
 
-export default function Documents({ id }: { id?: string }) {
-  const [onglet, setOnglet] = useState<Onglet>('prep')
-  const data = useQuery(async () => {
-    const s = await get<Seance>('seances', id ?? '')
-    if (!s) return null
-    const [classes, creneaux, seq, pjs] = await Promise.all([
-      all<Classe>('classes'), all<Creneau>('creneaux'), s.sequenceId ? get<Sequence>('sequences', s.sequenceId) : undefined, byIndex<PieceJointe>('piecesJointes', 'seanceId', s.id),
-    ])
-    return { s: normaliserSeance(s), classe: classes.find((c) => c.id === s.classeId), creneau: creneaux.find((c) => c.id === s.creneauId), seq: seq && normaliserSequence(seq), pjs }
-  }, [id])
+/** Charge tout ce qu'il faut pour rendre les documents d'une séance. */
+export async function chargerDocs(id: string) {
+  const s = await get<Seance>('seances', id)
+  if (!s) return null
+  const [classes, creneaux, seq, pjs] = await Promise.all([
+    all<Classe>('classes'), all<Creneau>('creneaux'), s.sequenceId ? get<Sequence>('sequences', s.sequenceId) : undefined, byIndex<PieceJointe>('piecesJointes', 'seanceId', s.id),
+  ])
+  return { s: normaliserSeance(s), classe: classes.find((c) => c.id === s.classeId), creneau: creneaux.find((c) => c.id === s.creneauId), seq: seq && normaliserSequence(seq), pjs }
+}
+
+export default function Documents({ id, onglet: ongletInitial }: { id?: string; onglet?: string }) {
+  const [onglet, setOnglet] = useState<Onglet>((ONGLETS.find(([k]) => k === ongletInitial)?.[0] ?? 'prep') as Onglet)
+  const data = useQuery(() => chargerDocs(id ?? ''), [id])
 
   if (data === undefined) return null
   if (data === null) return <p className="mt-6">Séance introuvable. <a className="text-primary underline" href="#/agenda">Retour</a></p>
@@ -101,7 +104,7 @@ function Actions({ children }: { children: ReactNode }) {
 const Lignes = ({ texte }: { texte: string }) => <>{texte.split('\n').map((l, i) => <p key={i} style={{ margin: '0 0 3px' }}>{l || ' '}</p>)}</>
 
 // ——— Fiche de préparation (pour moi)
-function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; creneau?: Creneau; seq?: Sequence }) {
+export function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; creneau?: Creneau; seq?: Sequence }) {
   const ligne = (k: string, v: ReactNode) => v ? <tr><th style={{ textAlign: 'left', padding: '3px 8px 3px 0', color: '#5E554C', whiteSpace: 'nowrap', verticalAlign: 'top' }}>{k}</th><td style={{ padding: '3px 0' }}>{v}</td></tr> : null
   const rubrique = (titre: string, contenu: string) => contenu.trim() ? (
     <section data-bloc style={{ marginTop: 12 }}>
@@ -120,7 +123,7 @@ function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; cr
       <h1 data-bloc style={{ fontSize: '22pt', margin: '4px 0 8px' }}>{s.titre || 'Séance sans titre'}</h1>
       <table data-bloc style={{ fontSize: '10pt', borderCollapse: 'collapse' }}>
         <tbody>
-          {ligne('Classe', classe ? `${classe.nom} (${classe.niveau} ${classe.option}, ${classe.effectif} élèves)` : '')}
+          {ligne('Classe', classe ? `${classe.nom} (${classe.niveau} ${classe.option}${classe.effectif ? `, ${classe.effectif} élèves` : ''})` : '')}
           {ligne('Séquence', seq?.titre)}
           {ligne('Durée', `${s.dureeMin} min`)}
           {ligne('CECRL', s.cecrlDe === s.cecrlVers ? s.cecrlDe : `${s.cecrlDe} → ${s.cecrlVers}`)}
@@ -138,6 +141,10 @@ function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; cr
         {o.phonologique && <p><b>Phonologie :</b> {o.phonologique}</p>}
         {o.pragmatique && <p><b>Pragmatique :</b> {o.pragmatique}</p>}
       </section>
+      {rubrique('Objectifs & compétences (BO, CECRL)', s.competences)}
+      {rubrique('Programmation / progression', s.progressionRef)}
+      {rubrique('Organisation & rôle de l’enseignant', s.organisation)}
+      {rubrique('Matériel / supports', s.materiel)}
       {rubrique('Tâche', s.tache)}
       {s.deroulement.length > 0 && (
         <section style={{ marginTop: 12 }}>
@@ -157,7 +164,7 @@ function FichePrep({ s, classe, creneau, seq }: { s: Seance; classe?: Classe; cr
           {s.differenciation.aLaise && <p><b>Élèves à l’aise :</b> {s.differenciation.aLaise}</p>}
         </section>
       )}
-      {rubrique('Obstacles & remédiation', s.obstacles)}
+      {rubrique('Erreurs fréquentes & remédiation', s.obstacles)}
       {rubrique('Correction attendue', s.correction)}
       {rubrique('Trace écrite', s.traceEcrite)}
     </div>
@@ -181,7 +188,7 @@ function EnteteEleve({ titre, s }: { titre: string; s: Seance }) {
 }
 
 // ——— Leçon / trace écrite (à coller)
-function TraceEcrite({ s }: { s: Seance }) {
+export function TraceEcrite({ s }: { s: Seance }) {
   const lignes = s.traceEcrite.split('\n')
   // Les blocs séparés par une ligne vide deviennent des encadrés.
   const blocs: string[][] = [[]]
@@ -213,7 +220,7 @@ function TraceEcrite({ s }: { s: Seance }) {
 }
 
 // ——— Fiche d'exercices (exemple résolu en tête de chaque exercice)
-function FicheExercices({ s, corrige }: { s: Seance; corrige?: boolean }) {
+export function FicheExercices({ s, corrige }: { s: Seance; corrige?: boolean }) {
   return (
     <div>
       <EnteteEleve titre={corrige ? 'Corrección' : 'Ejercicios'} s={s} />

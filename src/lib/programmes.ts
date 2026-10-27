@@ -1,38 +1,8 @@
-// Références programmes LV (à vérifier par la prof en cas de nouveau BO).
-// LLCER : non pré-rempli (à compléter ensemble).
 
-export const PROGRAMMES = [
-  {
-    groupe: 'Cycle 4 (5e-4e-3e) — culture et lexique',
-    items: ['Langages', 'École et société', 'Voyages et migrations', 'Rencontres avec d’autres cultures'],
-  },
-  {
-    groupe: 'Seconde — « L’art de vivre ensemble »',
-    items: [
-      'Vivre entre générations',
-      'Les univers professionnels, le monde du travail',
-      'Le village, le quartier, la ville',
-      'Représentation de soi et rapport à autrui',
-      'Sports et société',
-      'La création et le rapport aux arts',
-      'Saisir le monde : s’informer',
-      'Le passé dans le présent',
-    ],
-  },
-  {
-    groupe: 'Cycle terminal — « Gestes fondateurs et mondes en mouvement »',
-    items: [
-      'Identités et échanges',
-      'Espace privé et espace public',
-      'Art et pouvoir',
-      'Citoyenneté et mondes virtuels',
-      'Fictions et réalités',
-      'Innovations scientifiques et responsabilité',
-      'Diversité et inclusion',
-      'Territoire et mémoire',
-    ],
-  },
-]
+import { PROGRAMMES_OFFICIELS } from '../data/officiel'
+
+/** Axes / thématiques des programmes en vigueur (pour les listes de suggestions). */
+export const PROGRAMMES = PROGRAMMES_OFFICIELS.map((p) => ({ groupe: p.titre, items: p.axes }))
 
 export const NATURES_SUPPORT = [
   'Chanson', 'Clip vidéo', 'Publicité', 'Extrait de film', 'Extrait de série', 'Court-métrage', 'Œuvre d’art (peinture)',

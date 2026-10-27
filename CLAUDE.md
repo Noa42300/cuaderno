@@ -1,154 +1,136 @@
 # CLAUDE.md — Cuaderno, cahier journal de professeure d’espagnol
 
 Mémoire commune du projet. **À tenir à jour à chaque décision.**
-Utilisatrice : professeure d’espagnol, second degré (collège + lycée), non développeuse.
-→ Expliquer simplement, en français, par petites étapes vérifiables.
-Dépôt : `Noa42300/cuaderno`. **Chaque modification validée est commitée et poussée directement sur
-`main`** (demande de la prof) → GitHub Actions publie sur https://noa42300.github.io/cuaderno/ et
-l’appli installée se met à jour seule. Toujours `npm run build` avant de pousser.
+
+- **Utilisatrice finale** : professeure d’espagnol (collège + lycée), non développeuse.
+- **Commanditaire** (qui pilote avec Claude) : sa fille, professeure des écoles, qui a son propre
+  cahier journal (CE1-CE2) et l’a donné comme **modèle d’organisation** (photos du 27/10/2026) :
+  barre latérale riche, vue Semaine en cartes par jour, clic sur un cours = fiche complète dépliée
+  et pré-remplie, documents à imprimer (Aperçu / PDF / Imprimer), Tableau en cursive, etc.
+- Expliquer simplement, en français, par petites étapes vérifiables. Libellés de navigation **en espagnol**
+  (sous-titre français).
+- Dépôt : `Noa42300/cuaderno`. **Chaque modification validée est commitée et poussée directement sur
+  `main`** → GitHub Actions publie sur https://noa42300.github.io/cuaderno/ ; l’appli installée se met
+  à jour seule. Toujours `npm run build` avant de pousser.
 
 ## 1. Principes non négociables
 
-- **100 % local** : toutes les données dans IndexedDB du navigateur. Aucun serveur, aucun compte,
-  aucun analytics, aucune requête externe (polices auto-hébergées via @fontsource, pas de Google Fonts).
-- **Aucune donnée d’élève ne quitte l’appareil.** Seule exception : la sauvegarde JSON que la prof
-  télécharge elle-même.
-- **PWA hors ligne**, installable Mac (Safari « Ajouter au Dock » / Chrome) et iPhone/iPad
-  (Safari › Partager › « Sur l’écran d’accueil »).
-- **GitHub Pages** : `base: './'` (sous-dossier), routage par hash (`#/jour/2026-10-26`),
-  déploiement auto sur push `main` (`.github/workflows/deploy.yml`).
-- **Mise à jour auto** : `registerType: 'autoUpdate'` + skipWaiting/clientsClaim ; `src/pwa.ts`
-  recharge la page sur `controllerchange`, vérifie les mises à jour toutes les 30 min et au retour
-  au premier plan. Les formulaires s’enregistrent automatiquement (0,6 s) pour qu’un rechargement ne
-  perde rien.
-- **Pas de code PIN** (supprimé le 2026-10-26 à la demande de la prof). La seule protection est le
-  mot de passe de session du Mac / de l’iPhone. Les anciens champs `pinHash/pinSel/verrouMinutes`
-  sont ignorés et effacés à la prochaine sauvegarde des réglages.
-- Images de diaporama : une URL externe (ex. Wikimedia) déclenche une requête vers ce site (aucune
-  donnée élève envoyée). Pour du 100 % hors ligne : image en pièce jointe (`pj:<id>`).
-- **Synchro publique (plus tard)** : `journal.json` produit par `sanitizeForPublic()`
-  (`src/db/sanitize.ts`), en **liste blanche**. Exclus : élèves, observations, pièces jointes,
-  réglages, rappels, bilans, différenciation, notes de séquence. Les prénoms d’élèves trouvés dans
-  les textes sont masqués « [élève] ». Relecture = fusion non destructive (à implémenter).
+- **100 % local** : données dans IndexedDB du navigateur. Aucun serveur, compte ni analytics.
+  Polices auto-hébergées (@fontsource : Fraunces, Atkinson Hyperlegible, Playwrite FR Trad).
+- **Aucune donnée d’élève ne quitte l’appareil** (sauf la sauvegarde JSON téléchargée par la prof).
+- **PWA hors ligne** (Mac : Safari › Fichier › Ajouter au Dock ; iPhone : Partager › Sur l’écran d’accueil).
+- **GitHub Pages** : `base: './'`, routage par hash, déploiement auto sur `main`.
+- **Mise à jour auto** (`src/pwa.ts`) ; formulaires enregistrés automatiquement (0,6 s).
+- **Pas de code PIN** (supprimé à la demande, 2026-10-26).
+- **Liens vidéo** : uniquement des liens trouvés par recherche web (jamais inventés), marqués
+  « à vérifier avant projection ». Une vidéo précise, jamais une page de résultats.
+- `sanitizeForPublic()` (liste blanche) prête pour une future synchro `journal.json`.
 
 ## 2. Stack
 
-Vite 8 · React 19 · TypeScript 7 · Tailwind CSS 4 (config CSS dans `src/index.css`) ·
-vite-plugin-pwa · idb. PDF : **html2canvas-pro** (gère les couleurs CSS modernes de Tailwind 4,
-contrairement à html2canvas) + jsPDF, chargés à la demande (`src/lib/pdf.ts`). Téléchargement par
-ancre `<a download>` (pas `window.open`, qui échoue en PWA installée) + impression navigateur en
-secours (`imprimer()` : classe `.zone-impression`). Découpage des pages sur les éléments `data-bloc`.
-
-Commandes : `npm run dev`, `npm run build`, `npm run icons` (régénère les PNG depuis
-`public/favicon.svg`, nécessite Playwright en local ; PNG versionnés).
+Vite 8 · React 19 · TypeScript 7 · Tailwind CSS 4 (config dans `src/index.css`) · vite-plugin-pwa · idb ·
+PDF : html2canvas-pro + jsPDF (chargés à la demande, `src/lib/pdf.ts`), téléchargement par ancre,
+impression navigateur en secours. Commandes : `npm run dev | build | icons`.
 
 ## 3. Arborescence
 
 ```
 src/
-  db/types.ts      modèle de données (source de vérité)
-  db/db.ts         ouverture IndexedDB + MIGRATIONS versionnées, CRUD, réglages
-  db/modeles.ts    fabriques (nouvelleSeance), créneaux du jour, prochain cours
-  db/backup.ts     export/import JSON complet, téléchargement
-  db/sanitize.ts   sanitizeForPublic()
-  lib/generateur.ts générateur déterministe de séance (POINTS_LANGUE : règle, obstacles, exercice)
-  lib/pdf.ts       export PDF (feuille A4, diapos paysage), impression
-  lib/             dates (A/B, fecha, semaine), hooks (useQuery, routeur hash, useEstMobile), programmes
-  components/      Shell (nav latérale Mac / onglets iPhone), Logo, ui
-  views/           Agenda (semaine/jour), EditeurSeance, Documents, Sequences (+ EditeurSequence,
-                   bibliothèque), Generateur, VueReglages, BientotLa
+  data/officiel.ts        programmes en vigueur 2026-27, axes, niveaux visés, volumes horaires,
+                          descripteurs CECRL, vacances 2026-27 (zones A/B/C), jours fériés, périodes
+  data/programmations.ts  6 séquences / niveau (5e, 4e, 3e, 1re, Tle) : période, axe, problématique,
+                          3 documents authentiques (+ vidéo vérifiée si trouvée), 2 points de langue,
+                          lexique [es, fr], tâche finale
+  data/grammaire.ts       19 points de langue : règle, erreurs fréquentes & remédiation, exercice
+                          (exemple résolu + 5 items + corrigé)
+  data/rituels.ts         rituels par niveau, phrases à traduire (FR→ES), refranes, trabalenguas ;
+                          rituelDuJour() déterministe (date + classe)
+  data/ressources.ts      ressources d’espagnol (sites pérennes)
+  data/classesInitiales.ts les 10 classes 2026-27, ajoutées une fois au 1er lancement
+  lib/generateur.ts       génère une fiche COMPLÈTE selon le type de séance
+  lib/progression.ts      moteur : cours de l’EDT ↔ séances de la progression
+  lib/pdf.ts, dates.ts, hooks.ts, programmes.ts
+  components/             Shell (barre bleu marine), DocumentsListe, Logo, ui
+  views/                  Journee (Hoy, Semana), FicheSeance, Documents, Agenda (Calendario),
+                          Programmation (Programación, Progresión), Sequences, Generateur,
+                          Annexes (Recursos, Rituales, Volumen), Pizarra, Eleves, Reunions, VueReglages
 ```
 
-## 4. Modèle de données (IndexedDB `cuaderno`, version 1)
+## 4. Navigation (barre latérale, libellés espagnols)
 
-Stores : `classes`, `creneaux`, `seances`, `devoirs`, `rappels`, `sequences`, `eleves`🔒,
-`observations`🔒, `piecesJointes`🔒, `meta` (réglages). 🔒 = sensible, jamais publié.
+Hoy · Semana · Calendario │ Programación · Progresión · Secuencias · Generador │ Recursos · Rituales ·
+Pizarra │ Alumnos · Reuniones · Volumen horario │ Ajustes. (« EDT classe » du modèle primaire : retiré.)
+iPhone : barre du bas Hoy · Semana · Rituales · Pizarra · Más (menu complet).
 
-- **Classe** : nom, niveau (6e→Tle), option (LV1/LV2/LLCER…), effectif, CECRL visé, couleur, heures/semaine.
-- **Créneau** (EDT récurrent) : classe, jour (1=lundi…6), début, fin, salle, semaine `toutes|A|B`.
-  Alternance A/B calculée depuis `reglages.lundiSemaineA`.
-- **Séance** : classe, date (null = bibliothèque), créneau, séquence, titre, statut
-  (prévue/faite/annulée), durée, activités langagières, CECRL de→vers, objectifs (culturel, lexical,
-  grammatical, phonologique, pragmatique), programme, support (titre, nature, source, url),
-  videoUrl (UNE vidéo), tâche, trace écrite, déroulement (étapes : titre, durée, AL, contenu),
-  différenciation (fragiles / à l’aise), obstacles, correction, bilan.
-  + `debut/fin` (horaire, copié du créneau ou saisi hors EDT), `ordre` (dans la séquence),
-  `exercices[]` (consigne, **exemple résolu**, items, corrigé — une ligne par item),
-  `diapos[]` (titre, texte, image URL ou `pj:<id>`, éléments à révéler — une ligne par élément).
-  Les anciennes séances sont complétées à la lecture par `normaliserSeance()`.
-- **Devoir** : classe, donné le, pour le, séance liée, texte. Date par défaut = prochain cours de la classe.
-- **Rappel** : date, heure, type (réunion, conseil, sortie, AP, parents, autre), titre.
-- **Séquence** : titre, niveau, classes, programme, projet final, tâche finale, évaluation, CECRL,
-  dates début/fin (bandeau dans l’agenda), couleur. `normaliserSequence()` pour les anciennes.
-- **Poser une séance** (`poserSeance`) : date + classe → premier créneau libre de la classe ce
-  jour-là, sinon hors EDT. « Poser automatiquement » une séquence = cours successifs de la classe.
-- **Élève / Observation** : locaux uniquement ; observations datées par activité langagière.
+## 5. Les classes 2026-2027
 
-**Migrations** : ne jamais modifier une migration livrée ; ajouter une fonction à `MIGRATIONS`
-dans `db.ts`. Toute évolution du modèle → mettre à jour cette section.
+5e D (LV2, A1+) · 4e C, 4e D (LV2, A2) · 3e B, 3e C, 3e D (LV2, A2) · 1re A, 1re B (LVB, B1) ·
+Tle A, Tle B (LVB, B1). Heures : 2 h 30 collège, 2 h lycée (à confirmer). Effectifs : non renseignés.
+**Emploi du temps : à fournir par la prof** (rien ne s’affiche dans Hoy/Semana sans lui).
 
-## 5. Volumes horaires
+## 6. Progression automatique (cœur de l’appli)
 
-`heuresHebdo` déclaré par classe, comparé à l’EDT (créneaux A/B comptés pour moitié) dans
-Réglages › Mes classes. À venir : heures faites (séances « faite ») / prévues sur l’année.
+- Chaque séquence = 11 séances : découverte doc 1 → approfondissement → point de langue 1 → doc 2 →
+  approfondissement → point de langue 2 → doc 3 → approfondissement → préparation tâche finale →
+  tâche finale (évaluation) → bilan & remédiation. Clé : `niveau:séquence:séance` (`+` = « suite »).
+- `planningClasse()` : sans recalage, la progression suit les **périodes** (une séquence prévue par
+  période) et répartit ses séances sur tous les cours de la période ; s’il y a plus de cours que de
+  séances, une séance s’étale sur deux cours (« (suite) » = approfondissement). Si la classe a été
+  **recalée** (`classe.depart = {date, index}`, page Progresión), ordre strict à partir de ce point.
+- Vacances (zone dans Ajustes) et jours fériés exclus.
+- Un cours sans fiche affiche le **titre proposé** ; au clic, `creerDepuisProgression()` génère et
+  enregistre la fiche complète. « ↻ Régénérer depuis la progression » dans la fiche.
 
-## 6. Charte graphique
+## 7. La fiche de séance (modèle du cahier journal)
 
-- Tokens dans `src/index.css` (`:root` / `.dark`), utilisés via Tailwind (`bg-surface`, `text-primary`…).
-- **Couleur principale : bleu marine `#1F3A5F`** (boutons, menu actif, liens, accents des documents ;
-  10,5:1 sur crème) — choix de la prof le 2026-10-26. Sombre : `#9DB8E0`.
-- Clair : fond crème `#FBF4E6`, encre `#2B2B2B`, terracotta `#C84B31` (frise, aplats décoratifs uniquement :
-  4,26:1 sur crème, insuffisant pour du texte),
-  grenat `#A11C3A`, safran `#E9A500` (fond seulement, texte encre dessus), ocre `#D98A2B`,
-  azulejo `#1C6E8C` (accent froid, 5,24:1).
-- Sombre : fond `#1E1A17`, primaire `#9DB8E0`, azulejo `#5FB3D1`, grenat `#E8778C`.
-- Typo : **Fraunces** (titres, caractère) · **Atkinson Hyperlegible** (corps, lisibilité maximale,
-  y compris en vidéoprojection).
-- Motifs : `.azulejo` (carreau en fond, discret), `.frise` (triangles teja/safran). Pas de drapeau.
-- Contrastes AA obligatoires ; responsive : barre latérale ≥ md, barre d’onglets en bas sur iPhone
-  (safe-area iOS gérée).
+Rubriques repliables : Objectifs & compétences (programme, problématique, niveau visé, descripteurs
+CECRL officiels par activité, socle cycle 4) · Programmation / progression · Organisation & rôle de
+l’enseignant (disposition + modalité et rôle pour chaque étape) · **Déroulement** (ouvert) · Matériel /
+support · Vidéo explicative · Différenciation · Correction / attendus · Erreurs fréquentes & remédiation ·
+Tâche & trace écrite · Fiche d’exercices · Diaporama · Bilan · **Documents à imprimer** (fiche de prép A4,
+diaporama, leçon à coller, exercices, corrigé, pièces jointes — Aperçu / PDF / Imprimer).
+Modèle de données : champs `competences`, `progressionRef`, `organisation`, `materiel`, `cleProgression`
+ajoutés à `Seance` (complétés par `normaliserSeance()` pour les anciennes fiches). IndexedDB toujours v1.
 
-## 7. Cadre pédagogique (chaque séance)
+## 8. Règles de rédaction (générateur et Claude)
 
-- 5 activités langagières : **CO, CE, EOC, EOI, EE**.
-- Niveau CECRL (de → vers), objectifs culturel / linguistiques (lexique, grammaire, phonologie) /
-  pragmatique, document support authentique (Espagne **et** Amérique latine), tâche, trace écrite.
-- Référence programmes (`src/lib/programmes.ts`) : cycle 4 = Langages, École et société, Voyages et
-  migrations, Rencontres avec d’autres cultures ; Seconde = 8 axes de « L’art de vivre ensemble » ;
-  cycle terminal = 8 axes de « Gestes fondateurs et mondes en mouvement ». **LLCER : à compléter
-  avec la prof.** Vérifier en cas de nouveau BO.
-- Vidéo : **un lien vers UNE vidéo précise** (contrôle `problemeVideo()` : refuse pages de résultats).
+- **1re personne** (« je distribue », « je circule »), jamais « l’enseignant… ».
+- Chaque étape : plusieurs **répliques orales** `— « … »`, en espagnol surtout.
+- Différenciation fragiles / à l’aise, **jamais de prénom associé à un trouble**.
+- Erreurs fréquentes (ser/estar, genre, faux-amis, accentuation, gustar…) + remédiation immédiate.
+- Fiches élèves : **exemple résolu en tête de chaque exercice**.
+- Les éléments qui dépendent d’un document à choisir restent entre **[crochets]**.
 
-## 8. Règles de rédaction des contenus (quand Claude rédige une séance)
+## 9. Programmes (vérifiés le 27/10/2026)
 
-- **Toujours à la 1re personne** : « je distribue », « je fais réagir en espagnol », « je circule ».
-  Jamais « l’enseignant… », jamais de ton générique ou « IA ».
-- Déroulement détaillé : chaque étape contient **plusieurs répliques orales** courtes et concrètes,
-  en français et/ou espagnol, format `— « … »`.
-- **Différenciation** explicite (fragiles / à l’aise), **jamais de prénom associé à un trouble**.
-- **Obstacles & remédiation** : erreurs typiques (ser/estar, genre des noms, faux-amis, conjugaison,
-  accentuation, gustar…) + comment débloquer sur le moment.
-- **Correction** attendue (réponses, production visée).
-- Fiches élèves : **un exemple résolu en tête de chaque exercice**.
+- 5e : nouveau programme (BO n° 22 du 29 mai 2025, annexe 9) — 6 axes dont « Le Mexique » (obligatoire).
+- 4e-3e : programme du cycle 4 (BO n° 31 du 30 juillet 2020) — Langages, École et société, Voyages et
+  migrations, Rencontres avec d’autres cultures (nouveau programme en 4e en 2027, 3e en 2028).
+- 1re et Tle : nouveau programme (BO n° 22 du 29 mai 2025, annexe 10), 6 axes par niveau
+  (1re : … axe 6 L’espace andin ; Tle : … axe 6 La richesse des métissages dans le monde hispanique).
+- Calendrier 2026-27 : source Onisep. Volumes : LV2 collège 2 h 30 ; 1re 4 h 30 et Tle 4 h (LVA+LVB).
 
-## 9. Feuille de route
+## 10. Charte graphique
 
-- [x] Étape 1 : projet, PWA, IndexedDB, thème, navigation, éditeur de séance,
-  réglages (classes, EDT A/B, jours, sauvegarde, journal.json).
-- [x] Étape 2 : agenda type « vrai agenda » (grille horaire semaine + jour ; ligne du haut :
-  séquences en cours, rappels, séances sans horaire ; clic sur un vide = nouvelle séance) ;
-  séquences & bibliothèque, pose manuelle et automatique dans l’agenda ; générateur de séance ;
-  documents (fiche de prép, diaporama projetable à révéler, leçon, exercices, corrigé, pièces
-  jointes) avec PDF, impression, plein écran ; suppression du PIN.
-- [ ] Progressions annuelles par niveau.
-- [ ] Rituels de début de cours.
-- [ ] Suivi élèves + observations (local).
-- [ ] Suivi des volumes horaires annuels.
-- [ ] Synchro lecture seule `journal.json` (fusion non destructive).
+- **Barre latérale bleu marine** (dégradé `#16305A → #0F2140`), item actif liseré safran `#E9A500`.
+- Couleur principale `#1F3A5F` (sombre : `#9DB8E0`) ; fond crème `#FBF4E6`, encre `#2B2B2B` ;
+  terracotta `#C84B31` en décor (frise), azulejo `#1C6E8C`, grenat `#A11C3A`.
+- Fraunces (titres) · Atkinson Hyperlegible (texte) · Playwrite FR Trad (cursive de la Pizarra).
+- Contrastes AA, responsive Mac / iPhone.
 
-## 10. Décisions prises
+## 11. Feuille de route
 
-- 2026-10-26 : nom « Cuaderno » ; routage par hash ; polices auto-hébergées ; teja foncée pour le
-  texte (contraste AA, remplacée ensuite par le bleu marine) ; alternance semaines A/B prise en charge.
-- 2026-10-26 : PIN supprimé ; publication directe sur `main` ; agenda en grille horaire (sur iPhone :
-  vue jour + bandeau de la semaine) ; générateur intégré ; html2canvas-pro pour les PDF.
+- [x] Étape 1 : socle PWA, données locales, réglages.
+- [x] Étape 2 : agenda, séquences, générateur, documents PDF, suppression du PIN.
+- [x] Étape 3 (27/10/2026) : refonte sur le modèle du cahier journal — 10 classes, programmations et
+  progressions par niveau, fiches complètes auto-remplies, Hoy/Semana, Rituales, Pizarra, Recursos,
+  Alumnos, Reuniones, Volumen horario, barre bleu marine en espagnol.
+- [ ] Saisir l’emploi du temps réel de la prof ; confirmer zone, LV2/LVB, horaires.
+- [ ] Documents « à choisir » : compléter avec la prof (articles récents, photos).
+- [ ] Recherche globale ; synchro `journal.json`.
+
+## 12. Décisions
+
+- 2026-10-26 : nom « Cuaderno », hash routing, polices locales, PIN supprimé, bleu marine.
+- 2026-10-27 : cible = la mère (prof d’espagnol) ; modèle = cahier journal primaire de la fille ;
+  progression alignée sur les périodes ; liens vidéo uniquement issus de recherches.
