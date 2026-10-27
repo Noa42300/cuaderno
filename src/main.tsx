@@ -5,10 +5,11 @@ import App from './App'
 import { enregistrerServiceWorker } from './pwa'
 import { demanderStockagePersistant } from './db/db'
 import { ajouterClassesInitiales } from './data/classesInitiales'
+import { chargerEdtInitial } from './data/edtInitial'
 
 enregistrerServiceWorker()
 demanderStockagePersistant()
-ajouterClassesInitiales()
+ajouterClassesInitiales().then(() => chargerEdtInitial())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

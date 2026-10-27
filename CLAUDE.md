@@ -65,8 +65,13 @@ iPhone : barre du bas Hoy · Semana · Rituales · Pizarra · Más (menu complet
 ## 5. Les classes 2026-2027
 
 5e D (LV2, A1+) · 4e C, 4e D (LV2, A2) · 3e B, 3e C, 3e D (LV2, A2) · 1re A, 1re B (LVB, B1) ·
-Tle A, Tle B (LVB, B1). Heures : 2 h 30 collège, 2 h lycée (à confirmer). Effectifs : non renseignés.
-**Emploi du temps : à fournir par la prof** (rien ne s’affiche dans Hoy/Semana sans lui).
+Tle A, Tle B (LVB, B1). Heures : 2 h 30 collège (moyenne A/B), 2 h lycée — vérifiées sur l’EDT. Effectifs : non renseignés.
+**Emploi du temps** (photo de l’agenda, 27/10/2026) : `src/data/edtInitial.ts`, chargé une fois si l’EDT est vide
+(bouton « Recharger » dans Ajustes › Emploi du temps). Cases d’1 h : 8h, 9h, 10h, 11h, pause, 12h45, 13h45, 14h45
+(fin 15h45 — horaires déduits, à confirmer). Mercredi libre. Alternance A/B : semaine du 31/08/2026 = A
+(hypothèse, à confirmer) ; toutes les vacances 2026-27 durent 2 semaines, la parité ne bouge pas.
+Différences A/B : mardi 9h (A 3e B / B 4e C), vendredi 10h (A 5e D / B 4e D), vendredi 11h (A 3e C / B 3e D).
+Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à confirmer.
 
 ## 6. Progression automatique (cœur de l’appli)
 
@@ -142,7 +147,7 @@ ajoutés à `Seance` (complétés par `normaliserSeance()` pour les anciennes fi
 - [x] Étape 3 (27/10/2026) : refonte sur le modèle du cahier journal — 10 classes, programmations et
   progressions par niveau, fiches complètes auto-remplies, Hoy/Semana, Rituales, Pizarra, Recursos,
   Alumnos, Reuniones, Volumen horario, barre bleu marine en espagnol.
-- [ ] Saisir l’emploi du temps réel de la prof ; confirmer zone, LV2/LVB, horaires.
+- [x] Emploi du temps saisi (27/10/2026). [ ] Confirmer : zone, semaine A de départ, horaires exacts, jeudi/vendredi après-midi.
 - [ ] Documents « à choisir » : compléter avec la prof (articles récents, photos).
 - [x] Inspiración : assistant de proposition (27/10/2026).
 - [ ] Option IA (API Claude) si la prof l’accepte ; recherche globale ; synchro `journal.json`.

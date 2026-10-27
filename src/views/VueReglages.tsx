@@ -6,6 +6,7 @@ import { CECRL, NIVEAUX, type Alternance, type Classe, type Creneau, type JourSe
 import { JOURS, aujourdhui, minutesEntre } from '../lib/dates'
 import { useQuery } from '../lib/hooks'
 import { ajouterClassesInitiales } from '../data/classesInitiales'
+import { chargerEdtInitial } from '../data/edtInitial'
 import { PastilleClasse, Vide } from '../components/ui'
 
 const ONGLETS = [
@@ -190,6 +191,10 @@ function Edt() {
           )
         })}
       </div>
+      <button className="btn-ghost mt-4" onClick={async () => {
+        if (!confirm('Remplacer tout l’emploi du temps par celui de 2026-2027 (photo de l’agenda) ?')) return
+        alert(`${await chargerEdtInitial(true)} créneaux chargés.`)
+      }}>↺ Recharger mon emploi du temps 2026-2027</button>
       {r.lundiSemaineA === '' && creneaux.some((c) => c.semaine !== 'toutes') && (
         <p className="mt-3 text-sm font-bold text-grenat">Tu as des créneaux en semaine A/B : indique un lundi de semaine A dans « Général ».</p>
       )}
