@@ -13,6 +13,19 @@ Mémoire commune du projet. **À tenir à jour à chaque décision.**
   `main`** → GitHub Actions publie sur https://noa42300.github.io/cuaderno/ ; l’appli installée se met
   à jour seule. Toujours `npm run build` avant de pousser.
 
+## 0. ⚠️ TERMINALES — à appliquer à CHAQUE demande qui les concerne (consigne de la prof, 27/10/2026)
+
+- Classes d’**excellent niveau** : jamais d’activité « petite classe » (pas de la fecha, météo, « ¿qué tal? »,
+  « pas de panique »…). Consignes, répliques et exercices de niveau B1+ → B2.
+- **Chaque séquence part d’une batterie de 6 à 7 documents** couvrant toutes les activités du CECRL
+  (compréhension écrite, orale, visuelle — œuvres, photos, affiches —, données chiffrées…).
+- Les élèves **choisissent un document par groupe**, l’**étudient en groupe**, trouvent un **axe d’attaque**,
+  formulent une **problématique**, choisissent le **meilleur support** et **restituent à leurs camarades** :
+  mini-pièce de théâtre, podcast, diaporama (PowerPoint) ou exposé classique.
+- Implémentation : `DOSSIERS_TLE` (programmations.ts), `PLAN_TLE` (progression.ts, 11 séances : galerie →
+  choix & groupes → étude ×2 → problématique → format → ateliers ×2 → restitutions ×2 → synthèse croisée),
+  `genererSeanceTle()` (generateur.ts, types `tle-*`).
+
 ## 1. Principes non négociables
 
 - **100 % local** : données dans IndexedDB du navigateur. Aucun serveur, compte ni analytics.
@@ -103,6 +116,17 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   prof) : brancher l’API Claude avec sa propre clé — payant et envoie le texte de la demande (jamais de
   données élèves) hors de l’appareil, contraire au principe « 100 % local » → accord explicite requis.
 
+## 6 ter. Activités d’entrée (Rituales)
+
+- `src/data/activites.ts` : banque **par niveau** d’activités à projeter (5-10 min), avec consigne, écran
+  et solution révélable. Tailles calculées sur l’EDT : une activité différente pour **chaque cours du
+  2/11 au 18/12/2026** (5e : 17 · 4e : 18 · 3e : 18 · 1re : 14 · Tle : 14), puis la banque recommence.
+- Collège : jeux, devinettes, quiz culturels, mini-grammaire (la fecha seulement en 5e/4e, en complément).
+  Lycée : débats argumentés, citations d’auteurs (sources vérifiées), traduction B1/B2, problématisation,
+  médiation, concordance des temps.
+- `src/lib/activites.ts` : attribution cours par cours ; la fiche générée commence par l’activité du cours.
+- À prévoir : banque de janvier à juin.
+
 ## 7. La fiche de séance (modèle du cahier journal)
 
 Rubriques repliables : Objectifs & compétences (programme, problématique, niveau visé, descripteurs
@@ -150,6 +174,8 @@ ajoutés à `Seance` (complétés par `normaliserSeance()` pour les anciennes fi
 - [x] Emploi du temps saisi (27/10/2026). [ ] Confirmer : zone, semaine A de départ, horaires exacts, jeudi/vendredi après-midi.
 - [ ] Documents « à choisir » : compléter avec la prof (articles récents, photos).
 - [x] Inspiración : assistant de proposition (27/10/2026).
+- [x] Activités d’entrée par niveau jusqu’à Noël ; Terminales en séquences-projets (27/10/2026).
+- [ ] Activités de janvier à juin.
 - [ ] Option IA (API Claude) si la prof l’accepte ; recherche globale ; synchro `journal.json`.
 
 ## 12. Décisions

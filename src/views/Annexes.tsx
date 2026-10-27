@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { minutesEntre, aujourdhui, fechaEs, formatLong } from '../lib/dates'
+import { minutesEntre, aujourdhui, fechaEs, formatCourt, formatLong } from '../lib/dates'
 import { aller } from '../lib/hooks'
 import { RESSOURCES } from '../data/ressources'
-import { rituelDuJour, RITUELS } from '../data/rituels'
+import { rituelDuJour } from '../data/rituels'
+import { activitesDeClasse } from '../lib/activites'
 import { niveauProg } from '../data/programmations'
 import { VOLUMES_OFFICIELS } from '../data/officiel'
-import { planningClasse, progressionDuNiveau } from '../lib/progression'
+import { planningClasse } from '../lib/progression'
 import { Vide } from '../components/ui'
 import { useDonnees } from './Journee'
 
@@ -42,76 +43,97 @@ export function Recursos() {
   )
 }
 
-// ——— RITUALES
+// ——— RITUALES : une activité d'entrée à projeter pour chaque cours, jusqu'aux vacances de Noël
 export function Rituales({ classeId }: { classeId?: string }) {
   const d = useDonnees()
-  const [date, setDate] = useState(aujourdhui())
-  const [montrer, setMontrer] = useState(false)
+  const [choix, setChoix] = useState<number | null>(null)
+  const [solution, setSolution] = useState(false)
   const [projection, setProjection] = useState(false)
   if (!d) return null
   const classe = d.classes.find((c) => c.id === classeId) ?? d.classes[0]
   if (!classe) return <Vide>Aucune classe.</Vide>
   const n = niveauProg(classe.niveau)
-  if (!n) return <Vide>Pas de rituels pour ce niveau.</Vide>
-  const r = rituelDuJour(n, date, classe.id)
-  // Mot du jour : tiré du vocabulaire de la séquence en cours.
-  const occ = planningClasse(classe, d.creneaux, d.reglages).find((o) => o.date >= date)
-  const seq = (occ && progressionDuNiveau(n)[occ.index]?.seq) ?? progressionDuNiveau(n)[0].seq
-  const mot = seq.lexique[[...date].reduce((h, c) => h + c.charCodeAt(0), 0) % seq.lexique.length]
+  if (!n) return <Vide>Pas d’activités pour ce niveau.</Vide>
+  const liste = activitesDeClasse(classe, d.creneaux, d.reglages)
+  const prochain = liste.findIndex((x) => x.date >= aujourdhui())
+  const i = choix ?? Math.max(0, prochain)
+  const cours = liste[i]
+  const lyc = n === '1re' || n === 'Tle'
+  const r = rituelDuJour(n, cours?.date ?? aujourdhui(), classe.id)
 
-  const contenu = (
+  const ecran = cours && (
     <div className="flex flex-col gap-4">
-      <p className="titre text-3xl first-letter:uppercase" lang="es">{fechaEs(date)}</p>
-      {r.rituels.filter((x) => x.titre !== 'La palabra del día').map((x) => (
-        <div key={x.titre}>
-          <h3 className="text-xl font-semibold">{x.titre}</h3>
-          <p className="text-muted">{x.consigne}</p>
-          <ul className="mt-1">{x.repliques.map((l) => <li key={l} lang="es">{l}</li>)}</ul>
-        </div>
-      ))}
-      <div>
-        <h3 className="text-xl font-semibold">La palabra del día</h3>
-        <p className="text-2xl font-bold text-primary" lang="es">{mot[0]} <span className="text-base font-normal text-muted">{montrer && `= ${mot[1]}`}</span></p>
-      </div>
-      <div>
-        <h3 className="text-xl font-semibold">Traduce · {r.traductions.length} phrases</h3>
-        <ol className="mt-1 list-decimal pl-6">
-          {r.traductions.map(([fr, es]) => <li key={fr} className="py-1">{fr}{montrer && <b className="block text-primary" lang="es">→ {es}</b>}</li>)}
-        </ol>
-      </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div><h3 className="font-semibold">Refrán del día</h3><p lang="es" className="italic">« {r.refran[0]} »</p>{montrer && <p className="text-sm text-muted">{r.refran[1]}</p>}</div>
-        <div><h3 className="font-semibold">Trabalenguas</h3><p lang="es" className="italic">{r.trabalenguas}</p></div>
-      </div>
+      <p className="text-sm font-bold uppercase tracking-wide text-azulejo">{cours.activite.type} · {cours.activite.duree} min</p>
+      <h2 className="titre text-4xl font-semibold" lang="es">{cours.activite.titre}</h2>
+      <div className="flex flex-col gap-2 text-2xl leading-snug" lang="es">{cours.activite.e.map((l) => <p key={l}>{l}</p>)}</div>
+      {solution && cours.activite.s && (
+        <div className="rounded-xl border-l-8 border-[#E9A500] bg-[#FFF7DF] p-4 text-xl text-[#2B2B2B]" lang="es">{cours.activite.s.map((l) => <p key={l}>{l}</p>)}</div>
+      )}
     </div>
   )
 
   return (
     <div>
-      <h1 className="text-3xl font-semibold">Rituales <span className="text-xl font-normal text-muted">· rituels d’entrée en classe</span></h1>
+      <h1 className="text-3xl font-semibold">Rituales <span className="text-xl font-normal text-muted">· activités d’entrée à projeter</span></h1>
       <div className="mt-3 flex flex-wrap gap-2">
         {d.classes.map((c) => (
-          <button key={c.id} onClick={() => aller('rituales', c.id)} className={`rounded-full border-2 px-3 py-1 text-sm font-bold ${c.id === classe.id ? 'text-white' : 'bg-surface'}`} style={{ borderColor: c.couleur, background: c.id === classe.id ? c.couleur : undefined }}>{c.nom}</button>
+          <button key={c.id} onClick={() => { setChoix(null); setSolution(false); aller('rituales', c.id) }} className={`rounded-full border-2 px-3 py-1 text-sm font-bold ${c.id === classe.id ? 'text-white' : 'bg-surface'}`} style={{ borderColor: c.couleur, background: c.id === classe.id ? c.couleur : undefined }}>{c.nom}</button>
         ))}
       </div>
-      <div className="no-print mt-3 flex flex-wrap items-center gap-2">
-        <input type="date" className="champ w-auto" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} aria-label="Date" />
-        <button className="btn-ghost" onClick={() => setMontrer(!montrer)}>{montrer ? '🙈 Cacher' : '👀 Montrer'} les réponses</button>
-        <button className="btn-primary" onClick={() => setProjection(true)}>▶ Projeter</button>
-        <span className="text-sm text-muted">Séquence en cours : « {seq.titre} » · le rituel change chaque jour.</span>
-      </div>
-      <section className="carte mt-4 p-5">{contenu}</section>
-      <details className="carte mt-4 p-4">
-        <summary className="cursor-pointer font-semibold">Tous les rituels du niveau {n}</summary>
-        <ul className="mt-2 grid gap-3 md:grid-cols-2">{RITUELS[n].map((x) => <li key={x.titre}><b>{x.titre}</b> — {x.consigne}<ul className="text-sm text-muted">{x.repliques.map((l) => <li key={l}>{l}</li>)}</ul></li>)}</ul>
-      </details>
-      {projection && (
-        <div className="fixed inset-0 z-50 overflow-auto bg-[#fbf4e6] p-10 text-[#2b2b2b] text-2xl" onClick={() => setProjection(false)}>
-          <button className="fixed right-4 top-4 rounded-full bg-[#1F3A5F] px-4 py-2 text-base font-bold text-white">✕ Fermer</button>
-          <div className="mx-auto max-w-5xl">{contenu}</div>
+
+      {!liste.length ? <div className="mt-4"><Vide>Pas de cours pour cette classe dans l’emploi du temps.</Vide></div> : (
+        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div>
+            <section className="carte p-5">
+              <p className="mb-3 text-sm text-muted">
+                Cours n° {cours.numero} · <b className="text-ink first-letter:uppercase">{formatLong(cours.date)}</b> à {cours.creneau.debut}
+                {i === prochain && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-xs font-bold text-on-primary">prochain cours</span>}
+              </p>
+              <p className="mb-4 rounded-lg bg-surface-2/60 px-3 py-2 text-sm"><b>Consigne (pour moi) :</b> {cours.activite.consigne}</p>
+              {ecran}
+              <div className="no-print mt-5 flex flex-wrap gap-2">
+                <button className="btn-primary" onClick={() => setProjection(true)}>▶ Projeter</button>
+                {cours.activite.s && <button className="btn-ghost" onClick={() => setSolution(!solution)}>{solution ? '🙈 Cacher' : '👀 Révéler'} la solution</button>}
+                <button className="btn-ghost px-3" disabled={i === 0} onClick={() => { setChoix(i - 1); setSolution(false) }}>‹ Précédente</button>
+                <button className="btn-ghost px-3" disabled={i === liste.length - 1} onClick={() => { setChoix(i + 1); setSolution(false) }}>Suivante ›</button>
+              </div>
+            </section>
+            {!lyc && (
+              <section className="carte mt-4 p-4 text-sm">
+                <h3 className="font-semibold">En plus, si le temps le permet</h3>
+                {(n === '5e' || n === '4e') && <p className="mt-1" lang="es"><b>La fecha :</b> <span className="first-letter:uppercase">{fechaEs(cours.date)}</span></p>}
+                <p className="mt-1" lang="es"><b>Refrán :</b> « {r.refran[0]} » <span className="text-muted">— {r.refran[1]}</span></p>
+                <p className="mt-1" lang="es"><b>Trabalenguas :</b> {r.trabalenguas}</p>
+              </section>
+            )}
+          </div>
+          <aside className="carte h-fit p-4">
+            <h3 className="font-semibold">Jusqu’aux vacances de Noël ({liste.length} cours)</h3>
+            <ol className="mt-2 flex max-h-[70vh] flex-col gap-1 overflow-y-auto text-sm">
+              {liste.map((x, k) => (
+                <li key={`${x.date}-${x.creneau.id}`}>
+                  <button onClick={() => { setChoix(k); setSolution(false) }}
+                    className={`flex w-full gap-2 rounded-lg px-2 py-1.5 text-left hover:bg-surface-2 ${k === i ? 'bg-primary text-on-primary hover:bg-primary' : ''} ${x.date < aujourdhui() ? 'opacity-60' : ''}`}>
+                    <span className="w-16 shrink-0 tabular-nums">{formatCourt(x.date)}</span>
+                    <span className="min-w-0 flex-1 truncate" lang="es">{x.activite.titre}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </aside>
         </div>
       )}
-      <p className="mt-2 text-xs text-muted">{formatLong(date)}</p>
+
+      {projection && cours && (
+        <div className="fixed inset-0 z-50 overflow-auto bg-[#fbf4e6] p-8 text-[#2b2b2b] md:p-14" onClick={() => setSolution(true)}>
+          <div className="fixed right-4 top-4 flex gap-2" onClick={(e) => e.stopPropagation()}>
+            {cours.activite.s && <button className="rounded-full bg-white px-4 py-2 font-bold shadow" onClick={() => setSolution(!solution)}>{solution ? 'Cacher' : 'Solution'}</button>}
+            <button className="rounded-full bg-[#1F3A5F] px-4 py-2 font-bold text-white" onClick={() => setProjection(false)}>✕ Fermer</button>
+          </div>
+          <div className="mx-auto max-w-5xl">{ecran}</div>
+          <p className="fixed bottom-4 left-1/2 -translate-x-1/2 text-sm text-[#5e554c]">Clic : révéler la solution</p>
+        </div>
+      )}
     </div>
   )
 }

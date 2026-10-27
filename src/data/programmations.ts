@@ -24,6 +24,8 @@ export interface SeqProg {
   points: [string, string] // clés de POINTS_LANGUE
   lexique: [string, string][] // [espagnol, français]
   docs: [DocProg, DocProg, DocProg]
+  /** Terminales : batterie de 6-7 documents au choix des groupes */
+  dossier?: DocProg[]
   tache: { al: Activite; texte: string }
 }
 
@@ -454,4 +456,70 @@ export const PROGRAMMATIONS: Record<NiveauProg, SeqProg[]> = {
 /** Niveau de programmation correspondant à une classe (2nde, 6e : pas encore de programmation). */
 export function niveauProg(niveau: string): NiveauProg | null {
   return (['5e', '4e', '3e', '1re', 'Tle'] as string[]).includes(niveau) ? (niveau as NiveauProg) : null
+}
+
+// ——— TERMINALES : séquences « dossier » (6-7 documents couvrant toutes les activités langagières).
+// Les élèves choisissent un document par groupe, l'étudient, trouvent un axe d'attaque, formulent une
+// problématique et restituent sous la forme de leur choix (mini-pièce, podcast, diaporama, exposé).
+
+export const FORMATS_RESTITUTION = ['mini-pièce de théâtre', 'podcast', 'diaporama (PowerPoint)', 'exposé classique']
+const TACHE_TLE = 'Par groupe, je rends compte de mon document et de notre problématique sous la forme choisie (mini-pièce de théâtre, podcast, diaporama ou exposé), 5 à 7 minutes, puis je réponds aux questions de la classe.'
+
+const DOSSIERS_TLE: Record<string, DocProg[]> = {
+  'Tle-1': [
+    { nature: 'Bande-annonce', titre: 'Roma (2018)', source: 'Alfonso Cuarón', al: 'CO', video: V.roma },
+    { nature: 'Photogramme', titre: 'Roma : Cleo y la familia', source: 'Alfonso Cuarón (2018)', al: 'EOC' },
+    { nature: 'Extrait littéraire (théâtre)', titre: 'La casa de Bernarda Alba (1936) — acte I', source: 'Federico García Lorca', al: 'CE' },
+    { nature: 'Article', titre: 'Las trabajadoras del hogar en México', source: 'presse', al: 'CE', aChoisir: true },
+    { nature: 'Photographie', titre: 'Marcha « Ni una menos » (Buenos Aires, 2015)', source: 'photo de presse', al: 'EOC', aChoisir: true },
+    { nature: 'Documentaire', titre: 'Las Sinsombrero (2015)', source: 'RTVE', al: 'CO', aChoisir: true },
+    { nature: 'Infographie', titre: 'El reparto de las tareas domésticas en España', source: 'presse / statistiques', al: 'CE', aChoisir: true },
+  ],
+  'Tle-2': [
+    { nature: 'Article', titre: 'Las Abuelas de Plaza de Mayo', source: 'presse argentine', al: 'CE', aChoisir: true },
+    { nature: 'Photographie', titre: 'Los pañuelos blancos de la Plaza de Mayo', source: 'Buenos Aires', al: 'EOC', aChoisir: true },
+    { nature: 'Œuvre d’art (peinture)', titre: 'Guernica (1937)', source: 'Pablo Picasso, Museo Reina Sofía', al: 'EOC' },
+    { nature: 'Extrait littéraire', titre: 'Soldados de Salamina (2001) — extrait', source: 'Javier Cercas', al: 'CE' },
+    { nature: 'Article', titre: 'La Ley de Memoria Democrática (2022)', source: 'presse espagnole', al: 'CE', aChoisir: true },
+    { nature: 'Interview vidéo', titre: 'Testimonio de un nieto recuperado', source: 'presse / TV argentine', al: 'CO', aChoisir: true },
+    { nature: 'Photographie', titre: 'Exhumación de una fosa común en España', source: 'photo de presse', al: 'EOC', aChoisir: true },
+  ],
+  'Tle-3': [
+    { nature: 'Bande-annonce', titre: 'El laberinto del fauno (2006)', source: 'Guillermo del Toro', al: 'CO', video: V.laberinto },
+    { nature: 'Extrait littéraire', titre: 'Cien años de soledad (1967) — incipit', source: 'Gabriel García Márquez', al: 'CE' },
+    { nature: 'Extrait littéraire', titre: 'Como agua para chocolate (1989) — chapitre I', source: 'Laura Esquivel', al: 'CE' },
+    { nature: 'Extrait littéraire', titre: 'Pedro Páramo (1955) — incipit', source: 'Juan Rulfo', al: 'CE' },
+    { nature: 'Microrrelato', titre: 'El dinosaurio (1959)', source: 'Augusto Monterroso', al: 'CE' },
+    { nature: 'Œuvre d’art (peinture)', titre: 'Peintures surréalistes', source: 'Remedios Varo', al: 'EOC', aChoisir: true },
+    { nature: 'Affiche de film', titre: 'El laberinto del fauno', source: 'Guillermo del Toro (2006)', al: 'EOC' },
+  ],
+  'Tle-4': [
+    { nature: 'Bande-annonce', titre: 'No (2012)', source: 'Pablo Larraín', al: 'CO', video: V.no },
+    { nature: 'Publicité', titre: 'Anuncio de la Lotería de Navidad 2015 — Justino', source: 'Loterías y Apuestas del Estado', al: 'CO', video: V.justino },
+    { nature: 'Affiche de campagne', titre: '« Chile, la alegría ya viene » — campagne du NO (1988)', source: 'Chili', al: 'EOC', aChoisir: true },
+    { nature: 'Bande dessinée', titre: 'Mafalda y la publicidad', source: 'Quino', al: 'CE' },
+    { nature: 'Unes de presse', titre: 'Portadas de El País y Clarín sobre un mismo hecho', source: 'presse', al: 'CE', aChoisir: true },
+    { nature: 'Podcast', titre: 'Un episodio de Radio Ambulante', source: 'radioambulante.org', al: 'CO', aChoisir: true },
+  ],
+  'Tle-5': [
+    { nature: 'Article', titre: 'El ciberacoso entre adolescentes en España', source: 'presse', al: 'CE', aChoisir: true },
+    { nature: 'Affiche de campagne', titre: 'Campaña contra las noticias falsas', source: 'campagne institutionnelle', al: 'EOC', aChoisir: true },
+    { nature: 'Interview vidéo', titre: 'Un creador de contenido habla de su oficio', source: 'RTVE / presse', al: 'CO', aChoisir: true },
+    { nature: 'Dessin de presse', titre: 'Viñetas sobre la tecnología', source: 'Forges (Antonio Fraguas)', al: 'EOC', aChoisir: true },
+    { nature: 'Infographie', titre: 'Los jóvenes españoles y las pantallas', source: 'presse / statistiques', al: 'CE', aChoisir: true },
+    { nature: 'Reportage vidéo', titre: 'Un día sin móvil', source: 'RTVE', al: 'CO', aChoisir: true },
+  ],
+  'Tle-6': [
+    { nature: 'Œuvre d’art (peinture)', titre: 'Las dos Fridas (1939)', source: 'Frida Kahlo', al: 'EOC' },
+    { nature: 'Chanson / clip', titre: 'Latinoamérica (2011)', source: 'Calle 13', al: 'CO', video: V.latinoamerica },
+    { nature: 'Œuvre d’art (fresque)', titre: 'La gran Tenochtitlan (1945)', source: 'Diego Rivera, Palacio Nacional (México)', al: 'EOC' },
+    { nature: 'Extrait littéraire', titre: 'Comentarios Reales de los Incas (1609) — proemio', source: 'Inca Garcilaso de la Vega', al: 'CE' },
+    { nature: 'Article', titre: 'La Virgen de Guadalupe, símbolo del sincretismo', source: 'presse / texte informatif', al: 'CE', aChoisir: true },
+    { nature: 'Œuvre d’art (peinture)', titre: 'Pinturas de castas (siglo XVIII)', source: 'Nouvelle-Espagne', al: 'EOC', aChoisir: true },
+  ],
+}
+
+for (const s of PROGRAMMATIONS.Tle) {
+  s.dossier = DOSSIERS_TLE[s.id]
+  s.tache = { al: 'EOC', texte: TACHE_TLE }
 }

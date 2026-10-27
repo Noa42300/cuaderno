@@ -126,7 +126,7 @@ function CarteProposition({ p, classe, principal, ctx, onFait }: { p: Propositio
         <div className="mt-3 grid gap-3 text-sm md:grid-cols-2">
           <div>
             <p className="font-bold">Documents</p>
-            <ul>{p.seq.docs.map((x) => <li key={x.titre}><span className="rounded bg-surface-2 px-1 text-[11px] font-bold">{x.al}</span> {x.titre} <span className="text-muted">— {x.source}</span>{x.video && ' 🎬'}{x.aChoisir && <span className="text-muted"> (à choisir)</span>}</li>)}</ul>
+            <ul>{(p.seq.dossier ?? p.seq.docs).map((x) => <li key={x.titre}><span className="rounded bg-surface-2 px-1 text-[11px] font-bold">{x.al}</span> {x.titre} <span className="text-muted">— {x.source}</span>{x.video && ' 🎬'}{x.aChoisir && <span className="text-muted"> (à choisir)</span>}</li>)}</ul>
           </div>
           <div>
             <p className="font-bold">Langue</p>

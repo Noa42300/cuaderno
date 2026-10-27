@@ -123,7 +123,7 @@ export function axesFaits(classe: Classe, ctx: Contexte): string[] {
   const passes = planningClasse(classe, ctx.creneaux, ctx.reglages).filter((o) => o.date < aujourdhui())
   const faits = new Set<string>()
   // Une séquence compte comme traitée si on a passé sa tâche finale.
-  for (const o of passes) { const sp = prog[o.index]; if (sp?.type === 'tache') faits.add(sp.seq.axe) }
+  for (const o of passes) { const sp = prog[o.index]; if (sp?.type === 'tache' || sp?.type === 'tle-synthese') faits.add(sp.seq.axe) }
   for (const s of ctx.seances) if (s.classeId === classe.id && s.statut === 'faite' && s.programme && /Tâche finale/.test(s.titre)) faits.add(s.programme)
   return [...faits]
 }

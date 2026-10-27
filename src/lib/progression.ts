@@ -2,7 +2,7 @@
 // correspond la séance suivante de la programmation du niveau. C'est ce qui permet de proposer
 // automatiquement un titre et une fiche complète sur chaque créneau.
 
-import { put } from '../db/db'
+import { all, getReglages, put } from '../db/db'
 import { creneauxDuJour, nouvelleSeance } from '../db/modeles'
 import type { Classe, Creneau, ISODate, Reglages, Seance } from '../db/types'
 import { enVacances, periodes } from '../data/officiel'
@@ -11,6 +11,8 @@ import { POINTS_LANGUE } from '../data/grammaire'
 import { rituelDuJour } from '../data/rituels'
 import { ajouterJours, minutesEntre } from './dates'
 import { genererSeance, TYPES_SEANCE, type ParamsGenerateur, type TypeSeance } from './generateur'
+import { activiteDuCours } from './activites'
+import type { ActiviteEntree } from '../data/activites'
 
 export interface SeanceProg {
   cle: string // « 5e:1:3 » = niveau : n° séquence : n° séance
@@ -27,7 +29,26 @@ export interface SeanceProg {
 
 const court = (t: string) => t.split(/ \(| — /)[0]
 
+/** Terminales : séquence-projet à partir d'un dossier de documents (voir CLAUDE.md). */
+const PLAN_TLE: [TypeSeance, string][] = [
+  ['tle-galerie', 'Lancement : galerie de documents'],
+  ['tle-choix', 'Choix du document & formation des groupes'],
+  ['tle-etude', 'Étude en groupe (1) : comprendre et contextualiser'],
+  ['tle-etude', 'Étude en groupe (2) : analyser et interpréter'],
+  ['tle-problematique', 'Axe d’attaque & problématique'],
+  ['tle-format', 'Choix du format : théâtre, podcast, diaporama ou exposé'],
+  ['tle-atelier', 'Atelier de production (1)'],
+  ['tle-atelier', 'Atelier de production (2) : répétitions'],
+  ['tle-restitution', 'Restitutions (1)'],
+  ['tle-restitution', 'Restitutions (2)'],
+  ['tle-synthese', 'Synthèse croisée de l’axe'],
+]
+
 export function seancesSequence(niveau: NiveauProg, seq: SeqProg, seqIndex: number): SeanceProg[] {
+  if (niveau === 'Tle')
+    return PLAN_TLE.map(([type, titre], i) => ({
+      cle: `${niveau}:${seqIndex + 1}:${i + 1}`, niveau, seqIndex, seq, numero: i + 1, total: PLAN_TLE.length, type, titre: `${seq.titre} — ${titre}`,
+    }))
   const [d1, d2, d3] = seq.docs
   const [p1, p2] = seq.points
   const plan: { type: TypeSeance; doc?: DocProg; point?: string; titre: string }[] = [
@@ -120,7 +141,7 @@ export function proposition(classe: Classe | undefined, occ: Occurrence | undefi
 
 /** Deuxième cours consacré à une même séance : approfondissement / entraînement. */
 function enSuite(sp: SeanceProg): SeanceProg {
-  return { ...sp, cle: `${sp.cle}+`, titre: `${sp.titre} (suite)`, type: sp.type === 'decouverte' ? 'approfondissement' : sp.type === 'tache' ? 'tache' : sp.type === 'langue' ? 'langue' : 'approfondissement' }
+  return { ...sp, cle: `${sp.cle}+`, titre: `${sp.titre} (suite)`, type: sp.type.startsWith('tle-') ? sp.type : sp.type === 'decouverte' ? 'approfondissement' : sp.type === 'tache' ? 'tache' : sp.type === 'langue' ? 'langue' : 'approfondissement' }
 }
 
 /** Retrouve une séance de progression à partir de sa clé (« 5e:2:3 » ou « 5e:2:3+ » pour une suite). */
@@ -131,11 +152,12 @@ export function seanceParCle(cle: string): SeanceProg | null {
   return sp ? (cle.endsWith('+') ? enSuite(sp) : sp) : null
 }
 
-export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: ISODate, duree: number): ParamsGenerateur {
+export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: ISODate, duree: number, activiteEntree?: ActiviteEntree): ParamsGenerateur {
   const { seq, type, doc } = sp
   const lyc = sp.niveau === '1re' || sp.niveau === 'Tle'
   const rit = rituelDuJour(sp.niveau, date, classe.id)
-  const activite = type === 'tache' || type === 'preparation' ? seq.tache.al
+  const activite = type.startsWith('tle-') ? 'EOC'
+    : type === 'tache' || type === 'preparation' ? seq.tache.al
     : type === 'langue' ? 'CE'
       : type === 'bilan' ? 'EE'
         : type === 'approfondissement' ? (doc?.al === 'EOC' || doc?.al === 'EOI' ? 'EE' : 'EOI')
@@ -165,6 +187,8 @@ export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: IS
     problematique: seq.problematique,
     tacheFinale: seq.tache.texte,
     pointsSequence: [...seq.points],
+    dossier: seq.dossier ?? (sp.niveau === 'Tle' ? [...seq.docs] : undefined),
+    activiteEntree: type === 'tache' ? undefined : activiteEntree,
     rituels: type === 'tache' ? [] : rit.rituels,
     traductions: type === 'tache' ? [] : rit.traductions,
     progressionRef: [
@@ -184,8 +208,10 @@ export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: IS
 export async function creerDepuisProgression(classe: Classe, date: ISODate, creneau: Creneau | undefined, sp: SeanceProg | null): Promise<Seance> {
   const base = nouvelleSeance(classe, date, creneau)
   const duree = creneau ? minutesEntre(creneau.debut, creneau.fin) : 55
+  const [creneaux, r] = await Promise.all([all<Creneau>('creneaux'), getReglages()])
+  const act = activiteDuCours(classe, date, creneau?.id, creneaux, r)?.activite
   const s: Seance = sp
-    ? { ...base, ...genererSeance(paramsDepuisProgression(sp, classe, date, duree)), cleProgression: sp.cle }
+    ? { ...base, ...genererSeance(paramsDepuisProgression(sp, classe, date, duree, act)), cleProgression: sp.cle }
     : { ...base, titre: 'Séance libre — approfondissement / projet' }
   await put('seances', s)
   return s

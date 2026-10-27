@@ -75,6 +75,12 @@ export function Programmation({ classeId }: { classeId?: string }) {
               <b className="text-ink">{prog.titre}</b> · niveau visé : {prog.niveauVise} · {prog.organisation}
             </p>
           )}
+          {n === 'Tle' && (
+            <p className="mt-3 rounded-lg bg-surface-2/70 px-3 py-2 text-sm">
+              <b>Terminales — séquences-projets :</b> une batterie de 6-7 documents (écrit, oral, image, données) par axe ; chaque groupe choisit un document,
+              l’étudie, trouve un axe d’attaque, formule une problématique et restitue à la classe sous forme de mini-pièce, podcast, diaporama ou exposé.
+            </p>
+          )}
           {!n ? <div className="mt-4"><Vide>Pas encore de programmation pour ce niveau.</Vide></div> : (
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[900px] border-separate border-spacing-0 text-sm">
@@ -91,7 +97,7 @@ export function Programmation({ classeId }: { classeId?: string }) {
                         <td className="border-t border-line p-2 font-bold">P{s.periode}<span className="block text-xs font-normal text-muted">{p && `${formatCourt(p.debut)} → ${formatCourt(p.fin)}`}</span></td>
                         <td className="border-t border-line p-2"><b className="titre text-base">{i + 1}. {s.titre}</b><span className="block italic text-muted">{s.problematique}</span></td>
                         <td className="border-t border-line p-2">{s.axe}</td>
-                        <td className="border-t border-line p-2"><ul className="flex flex-col gap-1">{s.docs.map((x) => <li key={x.titre}><span className="rounded bg-surface-2 px-1 text-[11px] font-bold">{x.al}</span> {x.titre} <span className="text-muted">— {x.source}</span>{x.video && ' 🎬'}</li>)}</ul></td>
+                        <td className="border-t border-line p-2"><ul className="flex flex-col gap-1">{(s.dossier ?? s.docs).map((x) => <li key={x.titre}><span className="rounded bg-surface-2 px-1 text-[11px] font-bold">{x.al}</span> {x.titre} <span className="text-muted">— {x.source}</span>{x.video && ' 🎬'}</li>)}</ul></td>
                         <td className="border-t border-line p-2">{s.points.map((k) => POINTS_LANGUE[k]?.label).join(' · ')}</td>
                         <td className="border-t border-line p-2"><span className="rounded bg-primary/10 px-1 text-[11px] font-bold">{s.tache.al}</span> {s.tache.texte}</td>
                       </tr>
