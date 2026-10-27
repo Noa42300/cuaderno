@@ -81,6 +81,23 @@ Tle A, Tle B (LVB, B1). Heures : 2 h 30 collège, 2 h lycée (à confirmer). Eff
 - Un cours sans fiche affiche le **titre proposé** ; au clic, `creerDepuisProgression()` génère et
   enregistre la fiche complète. « ↻ Régénérer depuis la progression » dans la fiche.
 
+## 6 bis. Inspiración (Generador › onglet par défaut) — « je décris, l’appli propose »
+
+- Principe demandé : **l’appli fait tout, la prof supervise**. Elle écrit en langage courant
+  (« J’ai fini l’axe Territoire et mémoire avec mes Tle A, que faire derrière ? »).
+- `src/lib/inspiration.ts` (100 % local, déterministe) : `analyser()` repère classe(s), axe terminé /
+  souhaité, séquence citée comme finie, thème (œuvre, artiste), point de grammaire, nombre de séances ;
+  `proposer()` exclut les axes déjà traités (d’après l’agenda : tâche finale passée) et note les séquences
+  (programmation + `BANQUE` de `src/data/inspiration.ts`) : axe restant, **continuité par notions
+  communes** (`NOTIONS`), axe 6, période, thème, grammaire, vidéo disponible — chaque point est expliqué
+  à la prof (« Pourquoi je te la propose »).
+- Actions : **Planifier sur les prochains cours** (programmation → recalage de la progression ; banque →
+  séquence personnelle + 11 fiches complètes posées sur les cours, puis la progression reprend),
+  Générer une fiche, Garder l’idée (Secuencias).
+- Limite assumée : pas de compréhension libre type IA. Option possible (non activée, à décider par la
+  prof) : brancher l’API Claude avec sa propre clé — payant et envoie le texte de la demande (jamais de
+  données élèves) hors de l’appareil, contraire au principe « 100 % local » → accord explicite requis.
+
 ## 7. La fiche de séance (modèle du cahier journal)
 
 Rubriques repliables : Objectifs & compétences (programme, problématique, niveau visé, descripteurs
@@ -127,7 +144,8 @@ ajoutés à `Seance` (complétés par `normaliserSeance()` pour les anciennes fi
   Alumnos, Reuniones, Volumen horario, barre bleu marine en espagnol.
 - [ ] Saisir l’emploi du temps réel de la prof ; confirmer zone, LV2/LVB, horaires.
 - [ ] Documents « à choisir » : compléter avec la prof (articles récents, photos).
-- [ ] Recherche globale ; synchro `journal.json`.
+- [x] Inspiración : assistant de proposition (27/10/2026).
+- [ ] Option IA (API Claude) si la prof l’accepte ; recherche globale ; synchro `journal.json`.
 
 ## 12. Décisions
 

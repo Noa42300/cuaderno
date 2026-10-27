@@ -27,7 +27,7 @@ export interface SeanceProg {
 
 const court = (t: string) => t.split(/ \(| — /)[0]
 
-function seancesSequence(niveau: NiveauProg, seq: SeqProg, seqIndex: number): SeanceProg[] {
+export function seancesSequence(niveau: NiveauProg, seq: SeqProg, seqIndex: number): SeanceProg[] {
   const [d1, d2, d3] = seq.docs
   const [p1, p2] = seq.points
   const plan: { type: TypeSeance; doc?: DocProg; point?: string; titre: string }[] = [
@@ -168,7 +168,9 @@ export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: IS
     rituels: type === 'tache' ? [] : rit.rituels,
     traductions: type === 'tache' ? [] : rit.traductions,
     progressionRef: [
-      `Programmation ${sp.niveau} — Période ${seq.periode} · Séquence ${sp.seqIndex + 1}/${PROGRAMMATIONS[sp.niveau].length} « ${seq.titre} »`,
+      sp.seqIndex < 0
+        ? `Séquence complémentaire « ${seq.titre} » (proposée par Inspiración)`
+        : `Programmation ${sp.niveau} — Période ${seq.periode} · Séquence ${sp.seqIndex + 1}/${PROGRAMMATIONS[sp.niveau].length} « ${seq.titre} »`,
       `Axe / thématique : ${seq.axe}`,
       `Problématique : ${seq.problematique}`,
       `Séance ${sp.numero}/${sp.total} : ${TYPES_SEANCE[type]}`,

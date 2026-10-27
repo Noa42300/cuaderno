@@ -5,8 +5,25 @@ import { ACTIVITES, CECRL, type Activite, type Cecrl, type Classe, type Creneau,
 import { aller, useQuery } from '../lib/hooks'
 import { genererSeance, POINTS_LANGUE, type ParamsGenerateur } from '../lib/generateur'
 import { NATURES_SUPPORT, PROGRAMMES } from '../lib/programmes'
+import Inspiration from './Inspiration'
 
+/** Generador : « Inspiración » (je décris, l'appli propose) ou formulaire détaillé. */
 export default function Generateur({ sequenceId }: { sequenceId?: string }) {
+  const [onglet, setOnglet] = useState<'inspiration' | 'formulaire'>(sequenceId ? 'formulaire' : 'inspiration')
+  return (
+    <div>
+      <h1 className="text-3xl font-semibold">Generador <span className="text-xl font-normal text-muted">· séances et séquences</span></h1>
+      <div className="mt-3 flex gap-1 border-b border-line">
+        {([['inspiration', '✨ Inspiración — je décris, l’appli propose'], ['formulaire', '🛠️ Formulaire détaillé']] as const).map(([k, l]) => (
+          <button key={k} onClick={() => setOnglet(k)} className={`border-b-2 px-3 py-2 font-bold ${onglet === k ? 'border-primary text-primary' : 'border-transparent text-muted'}`}>{l}</button>
+        ))}
+      </div>
+      <div className="mt-4">{onglet === 'inspiration' ? <Inspiration /> : <FormulaireGenerateur sequenceId={sequenceId} />}</div>
+    </div>
+  )
+}
+
+function FormulaireGenerateur({ sequenceId }: { sequenceId?: string }) {
   const data = useQuery(async () => {
     const [classes, sequences] = await Promise.all([all<Classe>('classes'), all<Sequence>('sequences')])
     return { classes: classes.filter((c) => !c.archivee), sequences: sequences.map(normaliserSequence) }
@@ -49,7 +66,6 @@ export default function Generateur({ sequenceId }: { sequenceId?: string }) {
 
   return (
     <div>
-      <h1 className="mt-2 text-3xl font-semibold">✨ Générateur de séance</h1>
       <p className="mt-1 max-w-3xl text-muted">
         Je remplis quelques champs, l’appli construit une trame complète à la première personne : déroulement avec mes répliques,
         objectifs, différenciation, obstacles, correction, fiche d’exercices (avec exemple résolu) et diaporama. Je relis ensuite et je complète les <b>[crochets]</b>.
