@@ -7,6 +7,7 @@ import { creerDepuisProgression, indexPlanning, progressionDuNiveau, proposition
 import { ajouterJours, aujourdhui } from '../lib/dates'
 import { enVacances } from './officiel'
 import { DESCRIPTEURS } from './officiel'
+import { REF_TLE, seancesTlePour } from './seancesTle'
 import { PROGRESSION_REF_5E, PROGRESSION_REF_5E_NOEL, SEANCES_5E_D, SEANCES_5E_D_FIN, SEANCES_5E_D_NOEL, type SeanceEcrite } from './seances5eD'
 
 /**
@@ -67,7 +68,11 @@ export async function ajuster5eDFin() {
  * Écrit des séances rédigées à la main sur les créneaux d'une classe (retrouvée par le début de son nom).
  * Une fiche déjà modifiée par la prof sur l'un de ces créneaux n'est jamais écrasée.
  */
-async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progressionRef: string) {
+type Cadre = { de: Seance['cecrlDe']; vers: Seance['cecrlVers']; bande: 'A1' | 'B2'; bo: string; socle: string }
+const CADRE_5E: Cadre = { de: 'A1', vers: 'A1+', bande: 'A1', bo: 'BO n° 22 du 29 mai 2025 (programme de 5e)', socle: 'Socle commun (cycle 4) : D1 — comprendre, s’exprimer en utilisant une langue étrangère ; D2 — méthodes et outils pour apprendre.' }
+const CADRE_TLE: Cadre = { de: 'B1+', vers: 'B2', bande: 'B2', bo: 'BO n° 22 du 29 mai 2025 (programme de Terminale, LVB)', socle: 'Préparation à l’épreuve de LVB du baccalauréat : compréhension écrite et orale, expression orale en continu et en interaction.' }
+
+async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progressionRef: string | ((e: SeanceEcrite) => string), cadre: Cadre = CADRE_5E) {
   const [classes, creneaux, seances, r] = await Promise.all([all<Classe>('classes'), all<Creneau>('creneaux'), all<Seance>('seances'), getReglages()])
   const classe = classes.find((c) => c.nom.replace(/\s/g, '').toLowerCase().startsWith(prefixeNom))
   if (!classe) return null
@@ -78,13 +83,14 @@ async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progress
     if (existante && Math.abs(Date.parse(existante.modifieLe) - Date.parse(existante.creeLe)) > 2000) continue
     const base = existante ?? nouvelleSeance(classe, e.date, cr)
     const al = e.activites
+    const ref = typeof progressionRef === 'string' ? progressionRef : progressionRef(e)
     await put<Seance>('seances', {
       ...base,
-      titre: e.titre, statut: e.statut ?? 'prevue', activites: al, cecrlDe: 'A1', cecrlVers: 'A1+', dureeMin: e.etapes.reduce((t, x) => t + x.duree, 0),
-      programme: progressionRef.split('—')[1]?.split('\n')[0]?.trim() ?? '', cleProgression: '',
-      competences: [`Programme : ${progressionRef.split('\n')[0]}`, 'BO n° 22 du 29 mai 2025 (programme de 5e)', 'Niveau visé : A1 → A1+', '', 'Compétences travaillées (CECRL, niveau A1) :',
-        ...al.map((x) => `• ${x} — ${DESCRIPTEURS.A1[x]}`), '', 'Socle commun (cycle 4) : D1 — comprendre, s’exprimer en utilisant une langue étrangère ; D2 — méthodes et outils pour apprendre.'].join('\n'),
-      progressionRef,
+      titre: e.titre, statut: e.statut ?? 'prevue', activites: al, cecrlDe: cadre.de, cecrlVers: cadre.vers, dureeMin: e.etapes.reduce((t, x) => t + x.duree, 0),
+      programme: ref.split('—')[1]?.split('\n')[0]?.trim() ?? '', cleProgression: '',
+      competences: [`Programme : ${ref.split('\n')[0]}`, cadre.bo, `Niveau visé : ${cadre.de} → ${cadre.vers}`, '', `Compétences travaillées (CECRL, niveau ${cadre.bande}) :`,
+        ...al.map((x) => `• ${x} — ${DESCRIPTEURS[cadre.bande][x]}`), '', cadre.socle].join('\n'),
+      progressionRef: ref,
       organisation: e.etapes.map((x) => `• ${x.titre} (${x.duree} min) — ${x.modalite}. Mon rôle : ${x.role}.`).join('\n'),
       materiel: e.materiel.join('\n'),
       objectifs: e.objectifs,
@@ -149,4 +155,18 @@ export async function ajusterTleMestizaje() {
     }
   }
   await put('meta', { id: 'ajust-tle-mestizaje-2026', le: new Date().toISOString() })
+}
+
+/**
+ * 9/11/2026 — « Rédige toutes les séances des terminales à la main jusqu'à Noël à compter de lundi prochain ».
+ * Tle A et Tle B, du 16/11 au 18/12 : synthèse « Memoria y territorio » puis 9 séances de « Raíces mestizas ».
+ * Remplace les fiches générées non modifiées ; une fiche modifiée par la prof n'est jamais écrasée.
+ */
+export async function ajusterTleMain() {
+  if (await get('meta', 'ajust-tle-main-2026')) return
+  for (const lettre of ['A', 'B'] as const) {
+    const liste = seancesTlePour(lettre)
+    await ecrireSeances(`tle${lettre.toLowerCase()}`, liste, (e) => REF_TLE[(e as (typeof liste)[number]).ref], CADRE_TLE)
+  }
+  await put('meta', { id: 'ajust-tle-main-2026', le: new Date().toISOString() })
 }

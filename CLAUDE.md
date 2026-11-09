@@ -38,6 +38,13 @@ Mémoire commune du projet. **À tenir à jour à chaque décision.**
   López, 2022). Placée en 3e position de la programmation Tle (à la place d’« Entre ficción y realidad »,
   qui suit) ; démarre le 20/11 ; `ajusterTleMestizaje()` remplace les fiches auto non modifiées.
   Évaluation CE proposée (Vasconcelos, Octavio Paz, article) — à confirmer par la prof.
+- **Séances rédigées à la main du 16/11 au 18/12/2026** (demande du 9/11) : `src/data/seancesTle.ts`
+  (`SEANCES_TLE`, mêmes 10 séances pour Tle A et Tle B, dates propres à chaque classe) + `ajusterTleMain()`
+  (flag `ajust-tle-main-2026`, cadre B1+ → B2). Synthèse Memoria (A 16/11, B 19/11) → galerie des 7 docs (20/11)
+  → choix & groupes → étude (1) contextualiser/décrire → étude (2) analyser/interpréter → problématique → format
+  & storyboard → atelier → répétition générale croisée → restitutions (1) le 18/12 ; les autres groupes passent
+  en janvier, puis évaluation CE et synthèse. `PISTES` : questions d’exploration, d’analyse et problématique
+  modèle par document. `ecrireSeances()` accepte maintenant un cadre (CECRL, BO, socle).
 - Implémentation : `DOSSIERS_TLE` (programmations.ts), `PLAN_TLE` (progression.ts, 11 séances : galerie →
   choix & groupes → étude ×2 → problématique → format → ateliers ×2 → restitutions ×2 → synthèse croisée),
   `genererSeanceTle()` (generateur.ts, types `tle-*`).
