@@ -129,7 +129,15 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   remédiation · lun. 16 « ¿Cómo es Frida? » (SER/TENER, description) · jeu. 19 « ¿Quién es? » + « Mi autorretrato ».
   Puis progression recalée au 23/11 sur « ¡Hola! Así soy yo » (point de langue genre/nombre → Soy yo →
   préparation → tâche finale vidéo pour un correspondant mexicain). Une fiche modifiée par la prof n’est
-  jamais écrasée. À prévoir : 10-18 décembre (la progression enchaînerait sur le Día de Muertos, hors saison).
+  jamais écrasée.
+- 5e D, 10-17 décembre : mini-séquence « ¡Feliz Navidad! » (`SEANCES_5E_D_NOEL` : fêtes et calendrier, lettre de
+  Pablo aux Rois mages, « Mi carta a los Reyes Magos » = tâche finale, villancico « Los peces en el río » + 12 uvas).
+  Reprise en janvier (4/01/2027) sur « Mi día a día » (5e-3) ; le Día de Muertos est sauté cette année
+  (l’axe 6 Mexique reste couvert par Frida et « ¡Vámonos a México! »).
+- 4e « Navidad en España » resserrée à 7 séances (`seances: [1,2,4,6,9,10,11]`) pour finir avant Noël.
+- `preparerJusquaNoel()` : toutes les fiches de toutes les classes générées jusqu’au 18/12/2026 (138 fiches),
+  une seule fois au premier lancement ; créneaux déjà remplis non touchés. Les recalages ultérieurs ne
+  modifient plus ces créneaux (supprimer ou « Régénérer » la fiche).
 
 ## 6 ter. Activités d’entrée (Rituales)
 

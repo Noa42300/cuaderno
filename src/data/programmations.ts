@@ -26,6 +26,8 @@ export interface SeqProg {
   docs: [DocProg, DocProg, DocProg]
   /** Terminales : batterie de 6-7 documents au choix des groupes */
   dossier?: DocProg[]
+  /** Séquence resserrée : numéros (1-11) des séances du plan standard à garder */
+  seances?: number[]
   /** Évaluation de compréhension écrite en fin de séquence (texte inédit, pistes à choisir) */
   evaluationCE?: DocProg[]
   tache: { al: Activite; texte: string }
@@ -159,6 +161,8 @@ export const PROGRAMMATIONS: Record<NiveauProg, SeqProg[]> = {
     },
     {
       id: '4e-3', periode: 2, titre: 'Navidad en España', axe: 'Rencontres avec d’autres cultures',
+      // Resserrée à 7 séances pour finir avant les vacances de Noël (Justino, uvas, futur proche, carte de vœux).
+      seances: [1, 2, 4, 6, 9, 10, 11],
       problematique: '¿Qué tradiciones tienen los españoles en Navidad?',
       culturel: 'découvrir la Lotería de Navidad, les douze raisins et les Rois mages',
       points: ['presente_irr', 'futuro'],

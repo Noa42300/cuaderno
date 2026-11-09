@@ -68,8 +68,10 @@ export function seancesSequence(niveau: NiveauProg, seq: SeqProg, seqIndex: numb
     { type: 'tache', point: p1, titre: 'Tâche finale (évaluation)' },
     { type: 'bilan', point: p1, titre: 'Bilan, remédiation & culture' },
   ]
-  return plan.map((x, i) => ({
-    cle: `${niveau}:${seqIndex + 1}:${i + 1}`, niveau, seqIndex, seq, numero: i + 1, total: plan.length, ...x,
+  // Séquence resserrée (ex. Noël en 4e) : on garde certaines séances, la clé reste celle du plan complet.
+  const gardees = plan.map((x, i) => ({ x, i })).filter(({ i }) => !seq.seances || seq.seances.includes(i + 1))
+  return gardees.map(({ x, i }, k) => ({
+    cle: `${niveau}:${seqIndex + 1}:${i + 1}`, niveau, seqIndex, seq, numero: k + 1, total: gardees.length, ...x,
     titre: `${seq.titre} — ${x.titre}`,
   }))
 }
