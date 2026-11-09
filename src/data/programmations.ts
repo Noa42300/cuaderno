@@ -26,6 +26,8 @@ export interface SeqProg {
   docs: [DocProg, DocProg, DocProg]
   /** Terminales : batterie de 6-7 documents au choix des groupes */
   dossier?: DocProg[]
+  /** Évaluation de compréhension écrite en fin de séquence (texte inédit, pistes à choisir) */
+  evaluationCE?: DocProg[]
   tache: { al: Activite; texte: string }
 }
 
@@ -387,7 +389,14 @@ export const PROGRAMMATIONS: Record<NiveauProg, SeqProg[]> = {
     },
     {
       id: 'Tle-2', periode: 2, titre: 'Memoria y territorio', axe: 'Axe 2 — Territoire et mémoire',
-      problematique: '¿Por qué es necesario recordar?',
+      // Problématique fixée par la prof (9/11/2026)
+      problematique: '¿De qué manera las políticas de memoria histórica permiten a los países hispánicos superar los traumas del pasado?',
+      evaluationCE: [
+        { nature: 'Extrait littéraire', titre: 'Los girasoles ciegos (2004) — extrait', source: 'Alberto Méndez', al: 'CE' },
+        { nature: 'Extrait littéraire', titre: 'La voz dormida (2002) — extrait', source: 'Dulce Chacón', al: 'CE' },
+        { nature: 'Récit / témoignage', titre: 'La noche de los lápices (1986) — extrait', source: 'María Seoane y Héctor Ruiz Núñez', al: 'CE' },
+        { nature: 'Article', titre: 'Article récent sur la Ley de Memoria Democrática ou les exhumations', source: 'presse espagnole', al: 'CE', aChoisir: true },
+      ],
       culturel: 'comprendre le travail de mémoire en Argentine et en Espagne',
       points: ['preterito', 'subjuntivo'],
       lexique: [['la dictadura', 'la dictature'], ['los desaparecidos', 'les disparus'], ['la memoria', 'la mémoire'], ['el olvido', 'l’oubli'], ['la justicia', 'la justice'], ['reclamar', 'réclamer'], ['buscar', 'chercher'], ['el golpe de Estado', 'le coup d’État'], ['el pañuelo', 'le foulard'], ['la verdad', 'la vérité']],

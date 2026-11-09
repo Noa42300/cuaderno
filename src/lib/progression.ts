@@ -39,16 +39,20 @@ const PLAN_TLE: [TypeSeance, string][] = [
   ['tle-format', 'Choix du format : théâtre, podcast, diaporama ou exposé'],
   ['tle-atelier', 'Atelier de production (1)'],
   ['tle-atelier', 'Atelier de production (2) : répétitions'],
-  ['tle-restitution', 'Restitutions (1)'],
-  ['tle-restitution', 'Restitutions (2)'],
+  ['tle-restitution', 'Tâche finale : restitutions évaluées (1)'],
+  ['tle-restitution', 'Tâche finale : restitutions évaluées (2)'],
   ['tle-synthese', 'Synthèse croisée de l’axe'],
 ]
 
 export function seancesSequence(niveau: NiveauProg, seq: SeqProg, seqIndex: number): SeanceProg[] {
-  if (niveau === 'Tle')
-    return PLAN_TLE.map(([type, titre], i) => ({
-      cle: `${niveau}:${seqIndex + 1}:${i + 1}`, niveau, seqIndex, seq, numero: i + 1, total: PLAN_TLE.length, type, titre: `${seq.titre} — ${titre}`,
+  if (niveau === 'Tle') {
+    const plan: [TypeSeance, string][] = seq.evaluationCE
+      ? [...PLAN_TLE.slice(0, -1), ['tle-evaluation-ce', 'Évaluation : compréhension écrite'], PLAN_TLE[PLAN_TLE.length - 1]]
+      : PLAN_TLE
+    return plan.map(([type, titre], i) => ({
+      cle: `${niveau}:${seqIndex + 1}:${i + 1}`, niveau, seqIndex, seq, numero: i + 1, total: plan.length, type, titre: `${seq.titre} — ${titre}`,
     }))
+  }
   const [d1, d2, d3] = seq.docs
   const [p1, p2] = seq.points
   const plan: { type: TypeSeance; doc?: DocProg; point?: string; titre: string }[] = [
@@ -187,7 +191,7 @@ export function paramsDepuisProgression(sp: SeanceProg, classe: Classe, date: IS
     problematique: seq.problematique,
     tacheFinale: seq.tache.texte,
     pointsSequence: [...seq.points],
-    dossier: seq.dossier ?? (sp.niveau === 'Tle' ? [...seq.docs] : undefined),
+    dossier: type === 'tle-evaluation-ce' ? seq.evaluationCE : seq.dossier ?? (sp.niveau === 'Tle' ? [...seq.docs] : undefined),
     activiteEntree: type === 'tache' ? undefined : activiteEntree,
     rituels: type === 'tache' ? [] : rit.rituels,
     traductions: type === 'tache' ? [] : rit.traductions,

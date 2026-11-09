@@ -22,6 +22,12 @@ Mémoire commune du projet. **À tenir à jour à chaque décision.**
 - Les élèves **choisissent un document par groupe**, l’**étudient en groupe**, trouvent un **axe d’attaque**,
   formulent une **problématique**, choisissent le **meilleur support** et **restituent à leurs camarades** :
   mini-pièce de théâtre, podcast, diaporama (PowerPoint) ou exposé classique.
+- Évaluations de fin de séquence : **tâche finale** (restitutions évaluées) + **compréhension écrite** sur
+  texte inédit (`evaluationCE` dans la séquence → séance `tle-evaluation-ce` insérée avant la synthèse).
+- Axe Territoire et mémoire (Tle-2), problématique fixée par la prof : « ¿De qué manera las políticas de
+  memoria histórica permiten a los países hispánicos superar los traumas del pasado? » Semaine du 9/11/2026 :
+  1er cours = tâche finale, 2e cours = CE (recalage unique dans `src/data/ajustements.ts`), puis synthèse
+  et séquence Tle-3 (Fictions et réalités).
 - Implémentation : `DOSSIERS_TLE` (programmations.ts), `PLAN_TLE` (progression.ts, 11 séances : galerie →
   choix & groupes → étude ×2 → problématique → format → ateliers ×2 → restitutions ×2 → synthèse croisée),
   `genererSeanceTle()` (generateur.ts, types `tle-*`).

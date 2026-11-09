@@ -32,7 +32,7 @@ const PRAGMATIQUE: Record<Activite, string> = {
 }
 
 export type TypeSeance = 'decouverte' | 'approfondissement' | 'langue' | 'preparation' | 'tache' | 'bilan'
-  | 'tle-galerie' | 'tle-choix' | 'tle-etude' | 'tle-problematique' | 'tle-format' | 'tle-atelier' | 'tle-restitution' | 'tle-synthese'
+  | 'tle-galerie' | 'tle-choix' | 'tle-etude' | 'tle-problematique' | 'tle-format' | 'tle-atelier' | 'tle-restitution' | 'tle-evaluation-ce' | 'tle-synthese'
 export const TYPES_SEANCE: Record<TypeSeance, string> = {
   decouverte: 'Découverte d’un document',
   approfondissement: 'Approfondissement & production',
@@ -47,6 +47,7 @@ export const TYPES_SEANCE: Record<TypeSeance, string> = {
   'tle-format': 'Choix du format de restitution',
   'tle-atelier': 'Atelier de production',
   'tle-restitution': 'Restitutions devant la classe',
+  'tle-evaluation-ce': 'Évaluation de compréhension écrite',
   'tle-synthese': 'Synthèse croisée de l’axe',
 }
 
@@ -678,6 +679,27 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
           contenu: ['— « Lo que más me ha convencido es… · Habría sido aún mejor si… »'] },
       ]
       break
+    case 'tle-evaluation-ce':
+      etapes = [
+        { titre: 'Accueil & consignes de l’épreuve', poids: 0.8, al: ['CO'], modalite: 'Classe entière', role: 'je distribue le sujet et je rappelle les règles',
+          contenu: [
+            '— « Hoy, evaluación de comprensión escrita sobre el eje « ' + axe + ' ». Tenéis el texto y el sujeto: trabajo individual, en silencio, sin diccionario. »',
+            p.problematique ? `— « Recordad nuestra problemática: « ${p.problematique} » La última pregunta os pide relacionar el texto con ella. »` : '',
+            'Texte inédit à choisir (non étudié en classe) parmi les pistes :',
+            ...dossier.map((d) => `   • ${d.nature} — ${d.titre} (${d.source})${d.aChoisir ? ' — à sélectionner' : ''}`),
+          ] },
+        { titre: 'Épreuve de compréhension écrite', poids: 8, al: ['CE', 'EE'], modalite: 'Individuel, en silence', role: 'je surveille ; je n’explique pas le sens du texte, seulement les consignes',
+          contenu: [
+            '1. Identifier le document (nature, auteur, date, contexte).',
+            '2. Rendre compte en français de l’essentiel du texte (qui, quoi, où, quand, pourquoi).',
+            '3. Questions de compréhension fine, justifiées par des citations.',
+            '4. En espagnol (6-8 lignes) : en quoi ce texte éclaire-t-il la problématique de l’axe ?',
+            '— « Os quedan diez minutos: releed vuestras respuestas. »',
+          ] },
+        { titre: 'Relecture & ramassage', poids: 0.7, al: ['EE'], modalite: 'Individuel', role: 'je ramasse les copies',
+          contenu: ['— « Dejad los bolígrafos, por favor. Gracias. »'] },
+      ]
+      break
     default: // tle-synthese
       etapes = [
         entree,
@@ -712,6 +734,10 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
   if (type === 'tle-atelier') exercices.push({ id: uid(), consigne: 'Boîte à outils : complète avec le connecteur qui convient (si bien · no obstante · de ahí que · dado que).',
     exemple: '___ el documento es antiguo, sigue siendo actual. → Si bien el documento es antiguo, sigue siendo actual.',
     items: ['El tema es delicado; ___, merece debatirse.', '___ no había pruebas, el caso se cerró.', 'Nadie la escuchaba, ___ decidiera gritar.'].join('\n'), corrige: ['no obstante', 'Dado que', 'de ahí que'].join('\n') })
+  if (type === 'tle-evaluation-ce') exercices.push({ id: uid(), consigne: `Compréhension écrite — axe « ${axe} ». Réponds aux quatre parties.`,
+    exemple: 'Identifier : Guernica → Se trata de un cuadro de Pablo Picasso (1937), pintado tras el bombardeo de la ciudad vasca durante la Guerra Civil.',
+    items: ['Identifie le document : nature, auteur, date, contexte.', 'Rends compte en français de l’essentiel du texte (8-10 lignes).', 'Réponds aux questions de compréhension fine en citant le texte : [questions selon le texte choisi]', `En espagnol (6-8 lignes) : ¿En qué medida este texto ilustra la problemática « ${p.problematique ?? ''} »?`].join('\n'),
+    corrige: '[Corrigé à rédiger selon le texte choisi]\nAttendus : identification complète ; compte rendu fidèle des informations essentielles ; implicite et point de vue repérés (niveau B2) ; lien argumenté avec la problématique.' })
   if (type === 'tle-restitution' || type === 'tle-synthese') exercices.push({ id: uid(), consigne: 'Grille d’écoute / d’auto-évaluation (✔ acquis · ~ en cours · ✘ pas encore).',
     exemple: 'La problemática está claramente anunciada. → ✔', items: GRILLE_TLE.join('\n'), corrige: '—' })
 
@@ -722,6 +748,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
     dossier.forEach((d, i) => diapos.push({ id: uid(), titre: `Documento ${i + 1}`, texte: `${d.nature} — ${d.titre}\n${d.source}`, image: '', aReveler: '' }))
   }
   if (type === 'tle-problematique') diapos.push({ id: uid(), titre: '¿Cuál es la mejor?', texte: 'A. ¿Qué se ve en el Guernica?\nB. ¿Hasta qué punto una obra de arte puede convertirse en un arma contra la guerra?', image: '', aReveler: 'abierta · debatible · ligada al eje · anclada en el documento' })
+  if (type === 'tle-evaluation-ce') diapos.push({ id: uid(), titre: 'Evaluación: comprensión escrita', texte: '45 minutos · trabajo individual · sin diccionario', image: '', aReveler: ['1. Identificar el documento', '2. Rendre compte en français', '3. Comprensión detallada (citas)', '4. Relación con la problemática (en español)'].join('\n') })
   if (type === 'tle-format' || type === 'tle-restitution') diapos.push({ id: uid(), titre: 'Criterios', texte: '', image: '', aReveler: GRILLE_TLE.join('\n') })
 
   return {
@@ -739,7 +766,9 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
     progressionRef: p.progressionRef ?? '',
     organisation: ['Disposition : îlots de 3-4 élèves (un document par groupe) ; rôles tournants : secrétaire, porte-parole, gardien du temps, gardien de l’espagnol.',
       ...etapes.map((e, i) => `• ${e.titre} (${durees[i]} min) — ${e.modalite}. Mon rôle : ${e.role}.`)].join('\n'),
-    materiel: ['Dossier documentaire imprimé (un jeu par groupe) ; vidéos et audios sur ordinateurs / tablettes avec casques',
+    materiel: type === 'tle-evaluation-ce'
+      ? ['Texte inédit imprimé (1 par élève) — à choisir parmi :', ...dossier.map((d) => `• ${d.titre} (${d.source})`), 'Sujet imprimé (1 par élève) · copies doubles'].join('\n')
+      : ['Dossier documentaire imprimé (un jeu par groupe) ; vidéos et audios sur ordinateurs / tablettes avec casques',
       ...dossier.map((d, i) => `Doc ${i + 1} : ${d.nature} — ${d.titre} (${d.source})${d.aChoisir ? ' — à choisir / imprimer' : ''}${d.video ? ` — vidéo : ${d.video}` : ''}`),
       'Fiche méthode d’analyse · grille d’évaluation de la restitution',
       'Selon le format : téléphone / enregistreur (podcast), ordinateur (diaporama), accessoires (théâtre)'].join('\n'),
@@ -752,7 +781,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
       pragmatique: 'Présenter, analyser et problématiser un document ; argumenter, nuancer, réfuter ; rendre compte à un public.',
     },
     support: { titre: `Dossier : ${dossier.length} documents`, nature: 'Dossier documentaire', source: dossier.map((d) => d.titre).join(' · '), url: '' },
-    tache: p.tacheFinale ?? '',
+    tache: type === 'tle-evaluation-ce' ? 'Évaluation individuelle de compréhension écrite sur un texte inédit de l’axe.' : p.tacheFinale ?? '',
     traceEcrite: [
       p.titre,
       type === 'tle-problematique' ? 'Une bonne problématique est : ouverte · débattable · liée à l’axe · ancrée dans le document.\n¿En qué medida…? · ¿Hasta qué punto…? · ¿De qué manera…?' : '',
@@ -777,7 +806,9 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
     correction: [
       ...exercices.filter((e) => e.corrige && e.corrige !== '—').map((e) => `${e.consigne}\n${e.corrige}`),
       `Production attendue : ${p.tacheFinale ?? ''}`,
-      `Critères : ${GRILLE_TLE.join(' · ')}`,
+      type === 'tle-evaluation-ce'
+        ? 'Barème indicatif (à adapter) : A2 = informations explicites isolées · B1 = l’essentiel compris et restitué · B2 = compréhension fine, implicite et point de vue de l’auteur, lien pertinent avec la problématique.'
+        : `Critères : ${GRILLE_TLE.join(' · ')}`,
     ].join('\n\n'),
     exercices,
     diapos,
