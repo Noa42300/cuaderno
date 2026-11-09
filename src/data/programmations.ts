@@ -536,3 +536,35 @@ for (const s of PROGRAMMATIONS.Tle) {
   s.dossier = DOSSIERS_TLE[s.id]
   s.tache = { al: 'EOC', texte: TACHE_TLE }
 }
+
+// ——— 9/11/2026 : séquence choisie par la prof après « Territoire et mémoire » (Tle A et Tle B).
+// Remplace l'ancienne Tle-6 et passe en 3e position, juste après Memoria y territorio.
+{
+  const i = PROGRAMMATIONS.Tle.findIndex((s) => s.id === 'Tle-6')
+  const s = PROGRAMMATIONS.Tle[i]
+  Object.assign(s, {
+    periode: 2,
+    titre: 'Raíces mestizas',
+    problematique: '¿En qué medida el mestizaje cultural es omnipresente y fecundo en el mundo hispánico?',
+    culturel: 'mesurer la présence et la fécondité du métissage culturel (racines africaines, indigènes, européennes et arabo-andalouses) dans le monde hispanique',
+    points: ['subjuntivo', 'comparatifs'],
+    lexique: [['el mestizaje', 'le métissage'], ['las raíces', 'les racines'], ['los afrodescendientes', 'les afrodescendants'], ['la esclavitud', 'l’esclavage'], ['los pueblos indígenas', 'les peuples autochtones'], ['la herencia', 'l’héritage'], ['el sincretismo', 'le syncrétisme'], ['la convivencia', 'la coexistence'], ['enriquecer', 'enrichir'], ['fecundo', 'fécond'], ['el carnaval', 'le carnaval'], ['el sabor', 'la saveur']] as [string, string][],
+    dossier: [
+      { nature: 'Illustration de presse', titre: 'Le lien des afrodescendants d’aujourd’hui avec leurs racines', source: 'Eddaviel Montero, El País (2025)', al: 'EOC' },
+      { nature: 'Vidéo', titre: 'La trietnia del Carnaval de Barranquilla', source: 'Michèle Char Fernández', al: 'CO' },
+      { nature: 'Poème', titre: 'Balada de los dos abuelos (1934)', source: 'Nicolás Guillén (Cuba)', al: 'CE' },
+      { nature: 'Vidéo', titre: 'A la conquista del sabor: Mestizaje', source: 'TV UNAM (5/10/2022)', al: 'CO' },
+      { nature: 'Extrait', titre: 'Érase una vez al-Ándalus (2000) — extrait', source: 'à préciser', al: 'CE' },
+      { nature: 'Vidéo (interview)', titre: 'Mi identidad nació de tres culturas', source: 'Lila Downs, Aprendemos Juntos 2030 — BBVA (11/03/2025)', al: 'CO' },
+      { nature: 'Œuvre d’art', titre: 'Cooperación (2022)', source: 'Rafael López, artiste mexicain', al: 'EOC' },
+    ],
+    evaluationCE: [
+      { nature: 'Essai', titre: 'La raza cósmica (1925) — extrait', source: 'José Vasconcelos', al: 'CE' },
+      { nature: 'Essai', titre: 'El laberinto de la soledad (1950) — « Los hijos de la Malinche »', source: 'Octavio Paz', al: 'CE' },
+      { nature: 'Article', titre: 'Article récent sur le métissage culturel (musique, cuisine, langue)', source: 'presse', al: 'CE', aChoisir: true },
+    ],
+  })
+  s.docs = [s.dossier![0], s.dossier![1], s.dossier![2]]
+  PROGRAMMATIONS.Tle.splice(i, 1)
+  PROGRAMMATIONS.Tle.splice(2, 0, s)
+}

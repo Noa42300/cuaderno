@@ -28,6 +28,16 @@ Mémoire commune du projet. **À tenir à jour à chaque décision.**
   memoria histórica permiten a los países hispánicos superar los traumas del pasado? » Semaine du 9/11/2026 :
   1er cours = tâche finale, 2e cours = CE (recalage unique dans `src/data/ajustements.ts`), puis synthèse
   et séquence Tle-3 (Fictions et réalités).
+- Séquence suivante (choisie par la prof le 9/11/2026) : **« Raíces mestizas »** — axe 6, problématique
+  « ¿En qué medida el mestizaje cultural es omnipresente y fecundo en el mundo hispánico? » (reformulée à
+  partir de « ¿Cómo es omnipresente y fértil…? »). Dossier de la prof (7 docs) : illustration d’Eddaviel
+  Montero (El País, 2025) · vidéo « La trietnia del Carnaval de Barranquilla » (Michèle Char Fernández) ·
+  « Balada de los dos abuelos » (Nicolás Guillén) · vidéo « A la conquista del sabor: Mestizaje » (TV UNAM,
+  5/10/2022) · extrait « Érase una vez al-Ándalus » (2000, auteur à préciser) · vidéo Lila Downs « Mi
+  identidad nació de tres culturas » (Aprendemos Juntos 2030, BBVA, 11/03/2025) · « Cooperación » (Rafael
+  López, 2022). Placée en 3e position de la programmation Tle (à la place d’« Entre ficción y realidad »,
+  qui suit) ; démarre le 20/11 ; `ajusterTleMestizaje()` remplace les fiches auto non modifiées.
+  Évaluation CE proposée (Vasconcelos, Octavio Paz, article) — à confirmer par la prof.
 - Implémentation : `DOSSIERS_TLE` (programmations.ts), `PLAN_TLE` (progression.ts, 11 séances : galerie →
   choix & groupes → étude ×2 → problématique → format → ateliers ×2 → restitutions ×2 → synthèse croisée),
   `genererSeanceTle()` (generateur.ts, types `tle-*`).

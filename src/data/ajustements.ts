@@ -1,6 +1,6 @@
 // Ajustements ponctuels de la progression, demandés par la prof, appliqués une seule fois sur l'appareil.
 
-import { all, get, getReglages, put, uid } from '../db/db'
+import { all, delSeance, get, getReglages, put, uid } from '../db/db'
 import { creneauxDuJour, nouvelleSeance } from '../db/modeles'
 import type { Classe, Creneau, Seance } from '../db/types'
 import { creerDepuisProgression, indexPlanning, progressionDuNiveau, proposition } from '../lib/progression'
@@ -123,4 +123,30 @@ export async function preparerJusquaNoel() {
     }
   }
   await put('meta', { id: 'prep-noel-2026', le: new Date().toISOString() })
+}
+
+/**
+ * 9/11/2026 — Terminales : la séquence suivant « Territoire et mémoire » est « Raíces mestizas » (axe 6).
+ * Les fiches générées automatiquement à partir du 20/11 (ancienne séquence « Entre ficción y realidad »)
+ * et jamais modifiées sont remplacées par celles de la nouvelle séquence.
+ */
+export async function ajusterTleMestizaje() {
+  if (await get('meta', 'ajust-tle-mestizaje-2026')) return
+  const [classes, creneaux, seances, r] = await Promise.all([all<Classe>('classes'), all<Creneau>('creneaux'), all<Seance>('seances'), getReglages()])
+  const tle = classes.filter((c) => c.niveau === 'Tle')
+  const intactes = (s: Seance) => Math.abs(Date.parse(s.modifieLe) - Date.parse(s.creeLe)) <= 2000
+  for (const s of seances)
+    if (tle.some((c) => c.id === s.classeId) && s.date && s.date >= '2026-11-20' && s.cleProgression && intactes(s)) await delSeance(s.id)
+  const restantes = new Set((await all<Seance>('seances')).map((s) => `${s.date}|${s.creneauId}`))
+  const planning = indexPlanning(tle, creneaux, r)
+  for (let d = '2026-11-20'; d < '2026-12-19'; d = ajouterJours(d, 1)) {
+    if (enVacances(d, r.zone)) continue
+    for (const cr of creneauxDuJour(d, creneaux.filter((c) => tle.some((t) => t.id === c.classeId)), r)) {
+      if (restantes.has(`${d}|${cr.id}`)) continue
+      const classe = tle.find((c) => c.id === cr.classeId)!
+      const sp = proposition(classe, planning.get(`${d}|${cr.id}`))
+      if (sp) await creerDepuisProgression(classe, d, cr, sp)
+    }
+  }
+  await put('meta', { id: 'ajust-tle-mestizaje-2026', le: new Date().toISOString() })
 }

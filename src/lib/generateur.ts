@@ -551,6 +551,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
   const type = p.type!
   const dossier = p.dossier ?? []
   const axe = p.programme.replace(/^Axe \d+ — /, '')
+  const sec = p.titre.split(' — ')[0] // titre espagnol de la séquence, pour les répliques
   const act = p.activiteEntree
   const entree: EtapeGen = act ? {
     titre: `Entrée en activité — ${act.titre}`, poids: 1.3, al: ['EOI'], modalite: 'Classe entière', role: 'je lance l’activité projetée et je distribue la parole',
@@ -567,7 +568,8 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
         entree,
         { titre: 'Lancement de l’axe et du dispositif', poids: 1.2, al: ['CO'], modalite: 'Classe entière', role: 'je présente l’axe, le dispositif et les attendus',
           contenu: [
-            `— « Hoy abrimos un nuevo eje: « ${axe} ». Os propongo ${dossier.length} documentos muy distintos: textos, imágenes, vídeos, datos. »`,
+            `— « Hoy empezamos una nueva secuencia: « ${sec} ». Os propongo ${dossier.length} documentos muy distintos: textos, imágenes, vídeos. »`,
+            p.problematique ? `— « Nuestra gran pregunta: « ${p.problematique} » »` : '',
             '— « Vais a trabajar como investigadores: cada grupo elegirá un documento, lo estudiará a fondo, encontrará un ángulo de ataque y formulará una problemática. »',
             `— « Al final presentaréis vuestro trabajo a la clase en el formato que elijáis: ${FORMATS.join(', ')}. Entre cinco y siete minutos. »`,
             '— « El formato tiene que estar al servicio de la problemática, no al revés. »',
@@ -632,7 +634,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
             'Critères construits ensemble : ouverte (pas de oui/non), débattable, liée à l’axe, ancrée dans le document.',
           ] },
         { titre: 'Axe d’attaque & deux problématiques par groupe', poids: 2.6, al: ['EE', 'EOI'], modalite: 'Groupes', role: 'je valide ou je fais reformuler chaque proposition',
-          contenu: [`— « ¿Qué ángulo os parece más fuerte para hablar de « ${axe} » a partir de vuestro documento? »`, '— « Formulad dos problemáticas: ¿En qué medida…? ¿Hasta qué punto…? ¿De qué manera…? »'] },
+          contenu: [`— « ¿Qué ángulo os parece más fuerte para responder a « ${p.problematique ?? sec} » a partir de vuestro documento? »`, '— « Formulad dos problemáticas: ¿En qué medida…? ¿Hasta qué punto…? ¿De qué manera…? »'] },
         { titre: 'Galerie des problématiques', poids: 1.4, al: ['CE', 'EOI'], modalite: 'Circulation', role: 'je fais voter et commenter',
           contenu: ['Chaque groupe affiche ses problématiques ; les autres laissent un post-it : « clara / demasiado amplia / ¿y si…? ».'] },
         { titre: 'Plan de la réponse', poids: 1, al: ['EE'], modalite: 'Groupes', role: 'je vérifie la cohérence plan / problématique',
@@ -683,7 +685,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
       etapes = [
         { titre: 'Accueil & consignes de l’épreuve', poids: 0.8, al: ['CO'], modalite: 'Classe entière', role: 'je distribue le sujet et je rappelle les règles',
           contenu: [
-            '— « Hoy, evaluación de comprensión escrita sobre el eje « ' + axe + ' ». Tenéis el texto y el sujeto: trabajo individual, en silencio, sin diccionario. »',
+            `— « Hoy, evaluación de comprensión escrita sobre la secuencia « ${sec} ». Tenéis el texto y el sujeto: trabajo individual, en silencio, sin diccionario. »`,
             p.problematique ? `— « Recordad nuestra problemática: « ${p.problematique} » La última pregunta os pide relacionar el texto con ella. »` : '',
             'Texte inédit à choisir (non étudié en classe) parmi les pistes :',
             ...dossier.map((d) => `   • ${d.nature} — ${d.titre} (${d.source})${d.aChoisir ? ' — à sélectionner' : ''}`),
@@ -706,7 +708,7 @@ function genererSeanceTle(p: ParamsGenerateur): Partial<Seance> {
         { titre: 'Retour sur les restitutions', poids: 1.4, al: ['CE'], modalite: 'Classe entière', role: 'je valorise les réussites et je projette les erreurs fréquentes (anonymes)',
           contenu: ['Je rends les grilles et je projette cinq erreurs fréquentes à corriger collectivement.'] },
         { titre: 'Synthèse croisée de l’axe', poids: 3, al: ['EOI', 'EE'], modalite: 'Classe entière', role: 'j’anime la construction d’une carte mentale collective',
-          contenu: [`— « Con todos los documentos y todas vuestras problemáticas, ¿qué respuesta damos a la gran pregunta del eje « ${axe} »? »`, 'Carte mentale au tableau : chaque groupe ajoute sa branche (document, problématique, réponse).'] },
+          contenu: [`— « Con todos los documentos y todas vuestras problemáticas, ¿qué respuesta damos a la gran pregunta: « ${p.problematique ?? sec} »? »`, 'Carte mentale au tableau : chaque groupe ajoute sa branche (document, problématique, réponse).'] },
         { titre: 'Trace écrite & auto-évaluation', poids: 1.6, al: ['EE'], modalite: 'Individuel', role: 'je vérifie les cahiers',
           contenu: ['Chaque élève recopie la carte mentale et remplit sa fiche d’auto-évaluation.', '— « ¿Qué habéis aprendido sobre el tema? ¿Y sobre vuestra manera de trabajar en grupo? »'] },
       ]
