@@ -7,7 +7,7 @@ import { creerDepuisProgression, indexPlanning, progressionDuNiveau, proposition
 import { ajouterJours, aujourdhui } from '../lib/dates'
 import { enVacances } from './officiel'
 import { DESCRIPTEURS } from './officiel'
-import { PROGRESSION_REF_5E, PROGRESSION_REF_5E_NOEL, SEANCES_5E_D, SEANCES_5E_D_NOEL, type SeanceEcrite } from './seances5eD'
+import { PROGRESSION_REF_5E, PROGRESSION_REF_5E_NOEL, SEANCES_5E_D, SEANCES_5E_D_FIN, SEANCES_5E_D_NOEL, type SeanceEcrite } from './seances5eD'
 
 /**
  * 9/11/2026 — Terminales : cette semaine, tâche finale puis évaluation de compréhension écrite sur l'axe
@@ -56,6 +56,13 @@ export async function ajuster5eDNoel() {
   await put('meta', { id: 'ajust-5eD-noel-2026', le: new Date().toISOString() })
 }
 
+/** 5e D — fin de « ¡Hola! Así soy yo » rédigée à la main (23 nov. → 7 déc.), à la place des trames automatiques. */
+export async function ajuster5eDFin() {
+  if (await get('meta', 'ajust-5eD-fin-2026')) return
+  await ecrireSeances('5ed', SEANCES_5E_D_FIN, PROGRESSION_REF_5E)
+  await put('meta', { id: 'ajust-5eD-fin-2026', le: new Date().toISOString() })
+}
+
 /**
  * Écrit des séances rédigées à la main sur les créneaux d'une classe (retrouvée par le début de son nom).
  * Une fiche déjà modifiée par la prof sur l'un de ces créneaux n'est jamais écrasée.
@@ -67,7 +74,8 @@ async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progress
   for (const e of liste) {
     const cr = creneauxDuJour(e.date, creneaux.filter((c) => c.classeId === classe.id), r)[0]
     const existante = seances.find((s) => s.classeId === classe.id && s.date === e.date && (!cr || s.creneauId === cr.id))
-    if (existante && existante.modifieLe !== existante.creeLe) continue // modifiée par la prof : on n'y touche pas
+    // Modifiée par la prof (plus de 2 s entre création et dernière modification) : on n'y touche pas.
+    if (existante && Math.abs(Date.parse(existante.modifieLe) - Date.parse(existante.creeLe)) > 2000) continue
     const base = existante ?? nouvelleSeance(classe, e.date, cr)
     const al = e.activites
     await put<Seance>('seances', {
@@ -81,6 +89,7 @@ async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progress
       materiel: e.materiel.join('\n'),
       objectifs: e.objectifs,
       support: { ...e.support, url: '' },
+      videoUrl: e.video ?? '',
       tache: e.tache, traceEcrite: e.traceEcrite,
       deroulement: e.etapes.map((x) => ({ id: uid(), titre: x.titre, duree: x.duree, activites: x.al, contenu: x.contenu.join('\n') })),
       differenciation: { fragiles: e.fragiles, aLaise: e.aLaise },

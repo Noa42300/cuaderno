@@ -134,6 +134,11 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   Pablo aux Rois mages, « Mi carta a los Reyes Magos » = tâche finale, villancico « Los peces en el río » + 12 uvas).
   Reprise en janvier (4/01/2027) sur « Mi día a día » (5e-3) ; le Día de Muertos est sauté cette année
   (l’axe 6 Mexique reste couvert par Frida et « ¡Vámonos a México! »).
+- 5e D, 23 nov. → 7 déc. : `SEANCES_5E_D_FIN` (`ajuster5eDFin`) — adjectifs (accords) · « Soy yo » (Bomba
+  Estéreo, clip) · gustar · préparation de la tâche finale (vidéo pour Diego, Guadalajara) · tâche finale ·
+  bilan & quiz Mexique. → **Toutes les séances de 5e D jusqu’à Noël sont rédigées à la main.** Les autres
+  classes restent en fiches générées (trames) — demande de la prof : « les 5e uniquement pour l’instant ».
+- Règle de non-écrasement : une fiche est « modifiée par la prof » si modifieLe − creeLe > 2 s.
 - 4e « Navidad en España » resserrée à 7 séances (`seances: [1,2,4,6,9,10,11]`) pour finir avant Noël.
 - `preparerJusquaNoel()` : toutes les fiches de toutes les classes générées jusqu’au 18/12/2026 (138 fiches),
   une seule fois au premier lancement ; créneaux déjà remplis non touchés. Les recalages ultérieurs ne
