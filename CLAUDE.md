@@ -122,6 +122,15 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   prof) : brancher l’API Claude avec sa propre clé — payant et envoie le texte de la demande (jamais de
   données élèves) hors de l’appareil, contraire au principe « 100 % local » → accord explicite requis.
 
+## 6 quater. Séances écrites à la main (validées par la prof)
+
+- `src/data/seances5eD.ts` + `ajuster5eD()` (`src/data/ajustements.ts`, appliqué une fois sur l’appareil) :
+  5e D — lun. 9/11 éval. CO matériel scolaire (faite) · jeu. 12 éval. EOI « Nos conocemos » · ven. 13 bilan &
+  remédiation · lun. 16 « ¿Cómo es Frida? » (SER/TENER, description) · jeu. 19 « ¿Quién es? » + « Mi autorretrato ».
+  Puis progression recalée au 23/11 sur « ¡Hola! Así soy yo » (point de langue genre/nombre → Soy yo →
+  préparation → tâche finale vidéo pour un correspondant mexicain). Une fiche modifiée par la prof n’est
+  jamais écrasée. À prévoir : 10-18 décembre (la progression enchaînerait sur le Día de Muertos, hors saison).
+
 ## 6 ter. Activités d’entrée (Rituales)
 
 - `src/data/activites.ts` : banque **par niveau** d’activités à projeter (5-10 min), avec consigne, écran

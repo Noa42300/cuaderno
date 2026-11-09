@@ -3,7 +3,6 @@ import { all, getReglages } from '../db/db'
 import { creneauxDuJour, prochainCours, toutesSeances } from '../db/modeles'
 import type { Classe, Creneau, Devoir, Rappel, Reglages } from '../db/types'
 import { enVacances } from '../data/officiel'
-import { niveauProg } from '../data/programmations'
 import { ajouterJours, aujourdhui, fechaEs, formatLong, fromISO, jourDe, lundiDe, numeroSemaine } from '../lib/dates'
 import { aller, useQuery } from '../lib/hooks'
 import { creerDepuisProgression, indexPlanning, proposition, type Occurrence } from '../lib/progression'
@@ -112,7 +111,7 @@ export function Hoy({ date = aujourdhui(), ouvrir }: { date?: string; ouvrir?: s
                               {c.seance?.statut === 'faite' && <span className="text-xs font-bold text-azulejo">✓ faite</span>}
                             </span>
                             <span className={`mt-1 block font-semibold ${c.seance ? '' : 'italic text-muted'}`}>
-                              {c.seance?.titre || c.prop?.titre || (niveauProg(c.classe?.niveau ?? '') ? 'Progression terminée — séance libre' : 'Séance à préparer')}
+                              {c.seance?.titre || c.prop?.titre || 'Séance à préparer'}
                               {!c.seance && c.prop && <span className="ml-2 rounded bg-safran/30 px-1.5 py-0.5 text-[11px] font-bold not-italic text-ink">proposée</span>}
                             </span>
                             {c.seance && <span className="mt-1 flex flex-wrap gap-1">{c.seance.activites.map((a) => <BadgeAL key={a} a={a} />)}</span>}
