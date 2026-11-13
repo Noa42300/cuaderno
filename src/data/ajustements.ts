@@ -8,6 +8,9 @@ import { ajouterJours, aujourdhui } from '../lib/dates'
 import { enVacances } from './officiel'
 import { DESCRIPTEURS } from './officiel'
 import { REF_TLE, seancesTlePour } from './seancesTle'
+import { BANQUE } from './inspiration'
+import { planifier } from '../lib/inspiration'
+import type { Sequence } from '../db/types'
 import { PROGRESSION_REF_5E, PROGRESSION_REF_5E_NOEL, SEANCES_5E_D, SEANCES_5E_D_FIN, SEANCES_5E_D_NOEL, type SeanceEcrite } from './seances5eD'
 
 /**
@@ -178,4 +181,33 @@ export async function ajuster1reAxe1() {
     if (c.niveau === '1re' && !(c.axesNonFaits ?? []).includes('Identités et échanges'))
       await put<Classe>('classes', { ...c, axesNonFaits: [...(c.axesNonFaits ?? []), 'Identités et échanges'] })
   await put('meta', { id: 'ajust-1re-axe1-2026', le: new Date().toISOString() })
+}
+
+/**
+ * 13/11/2026 — « Mets ces propositions sur le cahier pédagogique » (1re A et 1re B).
+ * La séquence conseillée « Voces andinas » (axes 6 + 1) est posée sur les cours à partir du 30/11
+ * (fiches générées non modifiées remplacées) ; les deux alternatives sont gardées dans Secuencias, sans date.
+ */
+export async function ajuster1reVocesAndinas() {
+  if (await get('meta', 'ajust-1re-voces-2026')) return
+  const DEBUT = '2026-11-30'
+  const intactes = (s: Seance) => Math.abs(Date.parse(s.modifieLe) - Date.parse(s.creeLe)) <= 2000
+  const voces = BANQUE.find((b) => b.id === 'b-1re-andes-inclusion')!
+  const premieres = (await all<Classe>('classes')).filter((c) => c.niveau === '1re' && !c.archivee)
+  for (const c of premieres) {
+    for (const s of await all<Seance>('seances'))
+      if (s.classeId === c.id && s.date && s.date >= DEBUT && s.cleProgression && intactes(s)) await delSeance(s.id)
+    const [classes, creneaux, seances, reglages] = await Promise.all([all<Classe>('classes'), all<Creneau>('creneaux'), all<Seance>('seances'), getReglages()])
+    const classe = classes.find((x) => x.id === c.id)!
+    await planifier({ seq: voces, niveau: '1re', source: 'banque', score: 0, raisons: [] }, classe, DEBUT, { classes, creneaux, seances, reglages })
+  }
+  for (const id of ['b-1re-pachamama', 'b-1re-cantar-poder']) {
+    const b = BANQUE.find((x) => x.id === id)!
+    await put<Sequence>('sequences', {
+      id: uid(), titre: b.titre, niveau: '1re', classeIds: premieres.map((c) => c.id), programme: b.axe, projetFinal: '', tacheFinale: b.tache.texte,
+      evaluation: '', cecrlVise: premieres[0]?.cecrlVise ?? 'B1', dateDebut: '', dateFin: '', couleur: '#6A4C93',
+      notes: `Idée gardée (alternative proposée le 13/11/2026)\nProblématique : ${b.problematique}\nDocuments : ${b.docs.map((x) => x.titre).join(' · ')}`,
+    })
+  }
+  await put('meta', { id: 'ajust-1re-voces-2026', le: new Date().toISOString() })
 }

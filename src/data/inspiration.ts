@@ -195,7 +195,7 @@ export const BANQUE: (SeqProg & { niveaux: NiveauProg[] })[] = [
       { nature: 'Texte officiel / article', titre: 'Bolivia, Estado Plurinacional: la Constitución de 2009 reconoce 36 lenguas originarias', source: 'Constitution bolivienne (art. 1 et 5) ou article de presse', al: 'CE', aChoisir: true },
     ],
     conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : associer les axes 6 (espace andin) et 1 (identités et échanges), comme le programme l’autorise. Il te reste 5 axes pour 4 places et environ 5 mois : couvrir deux axes en une séquence te donne de la marge. On garde le fil de l’inclusion (discriminations, identité), et la séquence se coupe bien aux vacances (découverte avant Noël, tâche finale en janvier).' },
-    tache: { al: 'EOC', texte: 'Je réalise un podcast de 3 minutes : « Voces andinas », portrait d’une personne ou d’un collectif andin qui fait entendre sa culture.' },
+    tache: { al: 'EOC', texte: 'Podcast de 3 minutes « Ser andino hoy: ¿una identidad entre dos mundos? » : portrait d’une personne ou d’un collectif andin qui fait entendre sa langue et sa culture (identité, échanges entre cultures, fierté retrouvée).' },
   },
   {
     niveaux: ['1re'], id: 'b-1re-pachamama', periode: 0, titre: 'Los Andes se derriten: ¿quién paga?', axe: 'Axe 5 — L’être humain et la nature',

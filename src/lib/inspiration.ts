@@ -219,7 +219,10 @@ export async function planifier(p: Proposition, classe: Classe, depuis: ISODate,
   await put('sequences', sequence)
   // Après la séquence, la progression reprend là où elle en était.
   const apres = planningClasse(classe, ctx.creneaux, ctx.reglages).find((o) => o.date > derniere)
-  if (apres) await put<Classe>('classes', { ...classe, depart: { date: ajouterJours(derniere, 1), index: apres.index } })
+  // On reprend au début de la séquence suivante, jamais au milieu.
+  let idx = apres?.index ?? -1
+  while (idx > 0 && prog[idx - 1].seq.id === prog[idx].seq.id) idx--
+  if (apres) await put<Classe>('classes', { ...classe, depart: { date: ajouterJours(derniere, 1), index: idx } })
   return { mode: 'fiches' as const, nb: k, fin: derniere }
 }
 

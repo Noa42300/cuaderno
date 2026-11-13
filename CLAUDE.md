@@ -142,6 +142,12 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   `ajuster1reAxe1()` l’applique une fois à 1re A et 1re B. « Voces andinas » devient axes 6 + 1 associés
   (identités quechua/aymara + emprunts quechuas en espagnol). Limite : une séquence associée ne marque
   qu’un axe comme traité dans Inspiración.
+- 13/11/2026 : « Mets ces propositions sur le cahier » → `ajuster1reVocesAndinas()` (flag `ajust-1re-voces-2026`) :
+  « Voces andinas » (tâche finale : podcast « Ser andino hoy: ¿una identidad entre dos mundos? ») posée sur
+  1re A (1/12 → 19/01) et 1re B (30/11 → 18/01), fiches auto non modifiées ≥ 30/11 remplacées ; les 2 alternatives
+  gardées dans Secuencias (sans date). Ensuite la progression reprend sur « El arte y el poder » (axe 3).
+  Correctif `planifier()` : la reprise se fait au début d'une séquence, jamais au milieu.
+  ⚠️ Dans l'appli, l'axe 2 (« Todos somos diferentes ») s'arrête le 26-27/11 sans tâche finale — à voir avec la prof.
 - Actions : **Planifier sur les prochains cours** (programmation → recalage de la progression ; banque →
   séquence personnelle + 11 fiches complètes posées sur les cours, puis la progression reprend),
   Générer une fiche, Garder l’idée (Secuencias).
