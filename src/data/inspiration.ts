@@ -194,21 +194,21 @@ export const BANQUE: (SeqProg & { niveaux: NiveauProg[] })[] = [
       { nature: 'Photographies', titre: 'Las cholitas luchadoras de El Alto / las cholitas escaladoras (Bolivie)', source: 'photos de presse', al: 'EOC', aChoisir: true },
       { nature: 'Texte officiel / article', titre: 'Bolivia, Estado Plurinacional: la Constitución de 2009 reconoce 36 lenguas originarias', source: 'Constitution bolivienne (art. 1 et 5) ou article de presse', al: 'CE', aChoisir: true },
     ],
-    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : associer les axes 6 (espace andin) et 1 (identités et échanges), comme le programme l’autorise. Il te reste 5 axes pour 4 places et environ 5 mois : couvrir deux axes en une séquence te donne de la marge. On garde le fil de l’inclusion (discriminations, identité), et la séquence se coupe bien aux vacances (découverte avant Noël, tâche finale en janvier).' },
+    // Pas de conseil : quechua, Renata Flores, racisme et Ñuqanchik déjà traités en classe (prof, 13/11/2026).
     tache: { al: 'EOC', texte: 'Podcast de 3 minutes « Ser andino hoy: ¿una identidad entre dos mundos? » : portrait d’une personne ou d’un collectif andin qui fait entendre sa langue et sa culture (identité, échanges entre cultures, fierté retrouvée).' },
   },
   {
-    niveaux: ['1re'], id: 'b-1re-pachamama', periode: 0, titre: 'Los Andes se derriten: ¿quién paga?', axe: 'Axe 5 — L’être humain et la nature',
+    niveaux: ['1re'], id: 'b-1re-pachamama', periode: 0, titre: 'Los Andes se derriten: ¿quién paga?', axe: 'Axe 5 — L’être humain et la nature (associé à l’axe 6 L’espace andin)',
     problematique: '¿Quién es responsable del deshielo de los glaciares andinos?',
     culturel: 'axes 5 et 6 associés : la fonte des glaciers andins, l’affaire Saúl Luciano Lliuya contre RWE (Huaraz, Pérou ; jugement de Hamm, 28/05/2025) et la loi bolivienne des droits de la Terre-Mère (2010)',
     points: ['subjuntivo', 'condicional'],
     lexique: [['el glaciar', 'le glacier'], ['el deshielo', 'la fonte'], ['la laguna', 'la lagune'], ['la inundación', 'l’inondation'], ['el cambio climático', 'le changement climatique'], ['las emisiones', 'les émissions'], ['demandar', 'poursuivre en justice'], ['el tribunal', 'le tribunal'], ['la Pachamama', 'la Terre-Mère'], ['la justicia climática', 'la justice climatique'], ['sería justo que', 'il serait juste que']],
     docs: [
-      { nature: 'Article', titre: 'Saúl Luciano Lliuya contra RWE: un agricultor de Huaraz frente a un gigante energético alemán', source: 'presse (Andina, Gestión, Dialogue Earth…)', al: 'CE', aChoisir: true },
       { nature: 'Photographies (avant / après)', titre: 'El retroceso del glaciar Pastoruri (Cordillera Blanca, Perú)', source: 'photos de presse', al: 'EOC', aChoisir: true },
+      { nature: 'Article', titre: 'Saúl Luciano Lliuya contra RWE', source: 'presse (Andina, Gestión, Dialogue Earth…)', al: 'CE', aChoisir: true },
       { nature: 'Texte officiel (extrait)', titre: 'Ley de Derechos de la Madre Tierra (Bolivia, 2010)', source: 'Estado Plurinacional de Bolivia', al: 'CE', aChoisir: true },
     ],
-    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 3.5, texte: 'Alternative : associer les axes 5 et 6 (le programme le permet) avec un sujet d’actualité et un vrai débat (jugement de 2025). Moins de continuité avec l’inclusion, mais deux axes couverts en une séquence.' },
+    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : rester dans les Andes, mais par la nature (axes 5 et 6 associés) — tes élèves ont déjà travaillé le quechua, Renata Flores et le racisme. Sujet d’actualité, vrai débat (jugement de 2025), deux axes couverts en une séquence.' },
     tache: { al: 'EOI', texte: 'Procès simulé : « Saúl contra la empresa » — avocats, témoins, juges, puis verdict argumenté.' },
   },
   {

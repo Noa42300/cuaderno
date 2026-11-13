@@ -1,6 +1,6 @@
 // Ajustements ponctuels de la progression, demandés par la prof, appliqués une seule fois sur l'appareil.
 
-import { all, delSeance, get, getReglages, put, uid } from '../db/db'
+import { all, del, delSeance, get, getReglages, put, uid } from '../db/db'
 import { creneauxDuJour, nouvelleSeance } from '../db/modeles'
 import type { Classe, Creneau, Seance } from '../db/types'
 import { creerDepuisProgression, indexPlanning, progressionDuNiveau, proposition } from '../lib/progression'
@@ -231,4 +231,35 @@ export async function ajuster1reMain() {
     await ecrireSeances(`1re${lettre.toLowerCase()}`, liste, (e) => REF_1RE[(e as (typeof liste)[number]).ref], CADRE_1RE)
   }
   await put('meta', { id: 'ajust-1re-main-2026', le: new Date().toISOString() })
+}
+
+/**
+ * 13/11/2026 — 1re : « Voces andinas » fait doublon (quechua, Renata Flores, racisme, Ñuqanchik déjà traités).
+ * Remplacée par « Los Andes se derriten: ¿quién paga? » (axes 5 + 6) à partir du 30/11 :
+ * fiches « Voces andinas » non modifiées supprimées, nouvelle séquence planifiée, puis séances rédigées à la main
+ * jusqu'au 18/12 (`SEANCES_1RE`, partie « andes »).
+ */
+export async function ajuster1reGlaciares() {
+  if (await get('meta', 'ajust-1re-glaciares-2026')) return
+  const DEBUT = '2026-11-30'
+  const intactes = (s: Seance) => Math.abs(Date.parse(s.modifieLe) - Date.parse(s.creeLe)) <= 2000
+  const andes = BANQUE.find((b) => b.id === 'b-1re-pachamama')!
+  const premieres = (await all<Classe>('classes')).filter((c) => c.niveau === '1re' && !c.archivee)
+  const sequences = await all<Sequence>('sequences')
+  const voces = sequences.filter((q) => q.titre.startsWith('Voces andinas'))
+  for (const q of sequences)
+    if (q.niveau === '1re' && (q.titre.startsWith('Voces andinas') || (q.titre === andes.titre && !q.dateDebut))) await del('sequences', q.id)
+  for (const c of premieres) {
+    for (const s of await all<Seance>('seances'))
+      if (s.classeId === c.id && s.date && s.date >= DEBUT && intactes(s) && (s.cleProgression || voces.some((q) => q.id === s.sequenceId) || /^Voces andinas/.test(s.titre))) await delSeance(s.id)
+    const [classes, creneaux, seances, reglages] = await Promise.all([all<Classe>('classes'), all<Creneau>('creneaux'), all<Seance>('seances'), getReglages()])
+    const classe = classes.find((x) => x.id === c.id)!
+    // Reprise de la progression : on repart du recalage d'avant « Voces andinas » (déjà enregistré par planifier).
+    await planifier({ seq: andes, niveau: '1re', source: 'banque', score: 0, raisons: [] }, { ...classe, depart: undefined }, DEBUT, { classes, creneaux, seances, reglages })
+  }
+  for (const lettre of ['A', 'B'] as const) {
+    const liste = seances1rePour(lettre).filter((x) => x.ref === 'andes')
+    await ecrireSeances(`1re${lettre.toLowerCase()}`, liste, () => REF_1RE.andes, CADRE_1RE)
+  }
+  await put('meta', { id: 'ajust-1re-glaciares-2026', le: new Date().toISOString() })
 }

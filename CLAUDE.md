@@ -143,7 +143,7 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   (identités quechua/aymara + emprunts quechuas en espagnol). Limite : une séquence associée ne marque
   qu’un axe comme traité dans Inspiración.
 - 13/11/2026 : « Mets ces propositions sur le cahier » → `ajuster1reVocesAndinas()` (flag `ajust-1re-voces-2026`) :
-  « Voces andinas » (tâche finale : podcast « Ser andino hoy: ¿una identidad entre dos mundos? ») posée sur
+  « Voces andinas » (remplacée ensuite par « Los Andes se derriten », voir 6 quater ; tâche finale : podcast « Ser andino hoy: ¿una identidad entre dos mundos? ») posée sur
   1re A (1/12 → 19/01) et 1re B (30/11 → 18/01), fiches auto non modifiées ≥ 30/11 remplacées ; les 2 alternatives
   gardées dans Secuencias (sans date). Ensuite la progression reprend sur « El arte y el poder » (axe 3).
   Correctif `planifier()` : la reprise se fait au début d'une séquence, jamais au milieu.
@@ -177,6 +177,14 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   slogans + queremos que) · acoso escolar (affiche, débat) · obligation + synthèse de l'axe. Puis « Voces andinas » :
   palabras quechuas + Renata Flores · chanter en quechua (imparfait) · subjonctif · cholitas (photos) · cholitas
   (article, interview, passé composé) · passé composé + bilan. Documents à choisir entre [crochets].
+- **13/11 : « Voces andinas » abandonnée** — la prof a déjà traité le quechua, Renata Flores, le racisme subi par
+  les Péruviens, Ñuqanchik. Remplacée par **« Los Andes se derriten: ¿quién paga? »** (axes 5 + 6, conseil
+  Inspiración bonus 6 ; Voces sans conseil) : `ajuster1reGlaciares()` supprime les fiches Voces non modifiées et
+  la séquence, planifie la nouvelle à partir du 30/11, réécrit 30/11 → 18/12 à la main : Pastoruri avant/après ·
+  glacier réserve d'eau (cause/conséquence, aluvión de Huaraz 1941) · es urgente que + subj · Saúl Luciano Lliuya
+  c. RWE (2015 → jugement de Hamm 28/05/2025) · débat justice climatique · conditionnel + rôles du procès.
+  Janvier (auto) : Ley de Derechos de la Madre Tierra → préparation → procès simulé (14-15/01) → bilan, puis
+  « El arte y el poder ». Axe 1 Identités et échanges : reste à traiter.
 - Règle de non-écrasement : une fiche est « modifiée par la prof » si modifieLe − creeLe > 2 s.
 - 4e « Navidad en España » resserrée à 7 séances (`seances: [1,2,4,6,9,10,11]`) pour finir avant Noël.
 - `preparerJusquaNoel()` : toutes les fiches de toutes les classes générées jusqu’au 18/12/2026 (138 fiches),
