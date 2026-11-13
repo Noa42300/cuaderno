@@ -30,6 +30,8 @@ export interface SeqProg {
   seances?: number[]
   /** Évaluation de compréhension écrite en fin de séquence (texte inédit, pistes à choisir) */
   evaluationCE?: DocProg[]
+  /** Conseil de la prof-assistante : mis en avant dans Inspiración quand l'axe `apres` vient d'être terminé */
+  conseil?: { apres: string; texte: string; bonus: number }
   tache: { al: Activite; texte: string }
 }
 

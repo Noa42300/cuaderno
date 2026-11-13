@@ -181,6 +181,50 @@ export const BANQUE: (SeqProg & { niveaux: NiveauProg[] })[] = [
     ],
     tache: { al: 'EE', texte: 'J’écris un article pour défendre une langue en danger.' },
   },
+  // ——— Première : suites conseillées après « Diversité et inclusion » (demande de la prof, 13/11/2026,
+  // nouvel axe à partir du 30/11 : 6 cours avant Noël, la séquence se termine en janvier).
+  {
+    niveaux: ['1re'], id: 'b-1re-andes-inclusion', periode: 0, titre: 'Voces andinas: del silencio al orgullo', axe: 'Axe 6 — L’espace andin',
+    problematique: '¿Cómo reivindican hoy los pueblos andinos su lengua y su cultura?',
+    culturel: 'comprendre la place des peuples quechua et aymara : discriminations héritées, Estado Plurinacional de Bolivie (2009), renouveau du quechua par la musique',
+    points: ['subjuntivo', 'perfecto'],
+    lexique: [['los pueblos originarios', 'les peuples autochtones'], ['el quechua / el aymara', 'le quechua / l’aymara'], ['la discriminación', 'la discrimination'], ['avergonzarse de', 'avoir honte de'], ['reivindicar', 'revendiquer'], ['el orgullo', 'la fierté'], ['la cholita', 'femme aymara en tenue traditionnelle'], ['plurinacional', 'plurinational'], ['la lengua materna', 'la langue maternelle'], ['transmitir', 'transmettre'], ['visibilizar', 'rendre visible'], ['ha recuperado', 'a retrouvé']],
+    docs: [
+      { nature: 'Chanson / clip', titre: 'Renata Flores, la reina del rap en quechua (Ayacucho) — un clip au choix, p. ex. « Qam hina »', source: 'Renata Flores (Pérou) — lien à chercher sur sa chaîne officielle', al: 'CO', aChoisir: true },
+      { nature: 'Photographies', titre: 'Las cholitas luchadoras de El Alto / las cholitas escaladoras (Bolivie)', source: 'photos de presse', al: 'EOC', aChoisir: true },
+      { nature: 'Texte officiel / article', titre: 'Bolivia, Estado Plurinacional: la Constitución de 2009 reconoce 36 lenguas originarias', source: 'Constitution bolivienne (art. 1 et 5) ou article de presse', al: 'CE', aChoisir: true },
+    ],
+    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : on garde le fil (discriminations, inclusion, identité) en le déplaçant vers l’aire andine. L’axe 6 est propre à la 1re, rapide à rater s’il est repoussé en fin d’année (il était prévu en période 5), et la séquence se coupe bien aux vacances (découverte avant Noël, tâche finale en janvier).' },
+    tache: { al: 'EOC', texte: 'Je réalise un podcast de 3 minutes : « Voces andinas », portrait d’une personne ou d’un collectif andin qui fait entendre sa culture.' },
+  },
+  {
+    niveaux: ['1re'], id: 'b-1re-pachamama', periode: 0, titre: 'Los Andes se derriten: ¿quién paga?', axe: 'Axe 5 — L’être humain et la nature',
+    problematique: '¿Quién es responsable del deshielo de los glaciares andinos?',
+    culturel: 'axes 5 et 6 associés : la fonte des glaciers andins, l’affaire Saúl Luciano Lliuya contre RWE (Huaraz, Pérou ; jugement de Hamm, 28/05/2025) et la loi bolivienne des droits de la Terre-Mère (2010)',
+    points: ['subjuntivo', 'condicional'],
+    lexique: [['el glaciar', 'le glacier'], ['el deshielo', 'la fonte'], ['la laguna', 'la lagune'], ['la inundación', 'l’inondation'], ['el cambio climático', 'le changement climatique'], ['las emisiones', 'les émissions'], ['demandar', 'poursuivre en justice'], ['el tribunal', 'le tribunal'], ['la Pachamama', 'la Terre-Mère'], ['la justicia climática', 'la justice climatique'], ['sería justo que', 'il serait juste que']],
+    docs: [
+      { nature: 'Article', titre: 'Saúl Luciano Lliuya contra RWE: un agricultor de Huaraz frente a un gigante energético alemán', source: 'presse (Andina, Gestión, Dialogue Earth…)', al: 'CE', aChoisir: true },
+      { nature: 'Photographies (avant / après)', titre: 'El retroceso del glaciar Pastoruri (Cordillera Blanca, Perú)', source: 'photos de presse', al: 'EOC', aChoisir: true },
+      { nature: 'Texte officiel (extrait)', titre: 'Ley de Derechos de la Madre Tierra (Bolivia, 2010)', source: 'Estado Plurinacional de Bolivia', al: 'CE', aChoisir: true },
+    ],
+    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 3.5, texte: 'Alternative : associer les axes 5 et 6 (le programme le permet) avec un sujet d’actualité et un vrai débat (jugement de 2025). Moins de continuité avec l’inclusion, mais deux axes couverts en une séquence.' },
+    tache: { al: 'EOI', texte: 'Procès simulé : « Saúl contra la empresa » — avocats, témoins, juges, puis verdict argumenté.' },
+  },
+  {
+    niveaux: ['1re'], id: 'b-1re-cantar-poder', periode: 0, titre: 'Cantar y pintar contra el poder', axe: 'Axe 3 — Art et pouvoir',
+    problematique: '¿Puede el arte enfrentarse al poder?',
+    culturel: 'l’artiste face à la violence politique : Guernica de Picasso (1937) et la chanson de Víctor Jara sous Allende puis Pinochet',
+    points: ['preterito', 'imperfecto'],
+    lexique: [['el bombardeo', 'le bombardement'], ['la dictadura', 'la dictature'], ['el golpe de Estado', 'le coup d’État'], ['la censura', 'la censure'], ['el exilio', 'l’exil'], ['denunciar', 'dénoncer'], ['el cantautor', 'l’auteur-compositeur'], ['comprometido', 'engagé'], ['el símbolo', 'le symbole'], ['silenciar', 'faire taire']],
+    docs: [
+      { nature: 'Œuvre d’art (peinture)', titre: 'Guernica (1937)', source: 'Pablo Picasso, Museo Reina Sofía', al: 'EOC' },
+      { nature: 'Chanson', titre: 'El derecho de vivir en paz (1971)', source: 'Víctor Jara (Chili)', al: 'CO', aChoisir: true },
+      { nature: 'Article', titre: 'Víctor Jara, la voz que Pinochet quiso silenciar', source: 'presse', al: 'CE', aChoisir: true },
+    ],
+    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 3, texte: 'Alternative si tu préfères garder le programme dans l’ordre : l’axe 3 était prévu en janvier. Continuité plus faible avec l’inclusion, mais documents incontournables et faciles à trouver.' },
+    tache: { al: 'EE', texte: 'J’écris le texte d’une plaque commémorative ou d’un cartel de musée sur une œuvre engagée.' },
+  },
   // ——— Collège
   {
     niveaux: ['3e'], id: 'b-3e-1', periode: 0, titre: 'El Camino de Santiago', axe: 'Voyages et migrations',

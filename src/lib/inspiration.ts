@@ -159,6 +159,8 @@ export function proposer(a: Analyse, ctx: Contexte) {
     const pts = a.points.filter((k) => p.seq.points.includes(k))
     if (pts.length) { p.score += 3; r.push(`Travaille ${pts.map((k) => POINTS_LANGUE[k]?.label).join(' et ')}.`) }
     if (p.seq.docs.some((d) => d.video)) { p.score += 0.5; r.push('Vidéo déjà trouvée pour au moins un document.') }
+    const c = p.seq.conseil
+    if (c && faits.has(norm(sansAxe(c.apres)))) { p.score += c.bonus; r.unshift(c.texte) }
     if (p.source === 'banque') r.push('Séquence complémentaire (hors programmation de départ).')
   }
   const tries = candidats.filter((p) => p.score > -5).sort((x, y) => y.score - x.score)

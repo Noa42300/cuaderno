@@ -132,6 +132,11 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   (programmation + `BANQUE` de `src/data/inspiration.ts`) : axe restant, **continuité par notions
   communes** (`NOTIONS`), axe 6, période, thème, grammaire, vidéo disponible — chaque point est expliqué
   à la prof (« Pourquoi je te la propose »).
+- `conseil` (champ optionnel de `SeqProg`) : séquence mise en avant (bonus + raison « ★ Mon conseil… ») quand
+  l’axe `apres` est terminé. 13/11/2026, 1re, nouvel axe au 30/11 après Diversité et inclusion : 1. « Voces
+  andinas: del silencio al orgullo » (axe 6, conseillée) · 2. « Los Andes se derriten: ¿quién paga? » (axes 5+6,
+  affaire Lliuya c. RWE) · 3. « Cantar y pintar contra el poder » (axe 3, Guernica, Víctor Jara). Pas de lien
+  vidéo (aucun trouvé de façon fiable). Non planifiées : la prof choisit puis « Planifier ».
 - Actions : **Planifier sur les prochains cours** (programmation → recalage de la progression ; banque →
   séquence personnelle + 11 fiches complètes posées sur les cours, puis la progression reprend),
   Générer une fiche, Garder l’idée (Secuencias).
