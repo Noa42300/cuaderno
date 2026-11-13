@@ -8,6 +8,7 @@ import { ajouterJours, aujourdhui } from '../lib/dates'
 import { enVacances } from './officiel'
 import { DESCRIPTEURS } from './officiel'
 import { REF_TLE, seancesTlePour } from './seancesTle'
+import { REF_1RE, seances1rePour } from './seances1re'
 import { BANQUE } from './inspiration'
 import { planifier } from '../lib/inspiration'
 import type { Sequence } from '../db/types'
@@ -71,8 +72,9 @@ export async function ajuster5eDFin() {
  * Écrit des séances rédigées à la main sur les créneaux d'une classe (retrouvée par le début de son nom).
  * Une fiche déjà modifiée par la prof sur l'un de ces créneaux n'est jamais écrasée.
  */
-type Cadre = { de: Seance['cecrlDe']; vers: Seance['cecrlVers']; bande: 'A1' | 'B2'; bo: string; socle: string }
+type Cadre = { de: Seance['cecrlDe']; vers: Seance['cecrlVers']; bande: 'A1' | 'B1' | 'B2'; bo: string; socle: string }
 const CADRE_5E: Cadre = { de: 'A1', vers: 'A1+', bande: 'A1', bo: 'BO n° 22 du 29 mai 2025 (programme de 5e)', socle: 'Socle commun (cycle 4) : D1 — comprendre, s’exprimer en utilisant une langue étrangère ; D2 — méthodes et outils pour apprendre.' }
+const CADRE_1RE: Cadre = { de: 'A2+', vers: 'B1', bande: 'B1', bo: 'BO n° 22 du 29 mai 2025 (programme de Première, LVB)', socle: 'Cycle terminal : vers le niveau B1 attendu en LVB (épreuves de contrôle continu).' }
 const CADRE_TLE: Cadre = { de: 'B1+', vers: 'B2', bande: 'B2', bo: 'BO n° 22 du 29 mai 2025 (programme de Terminale, LVB)', socle: 'Préparation à l’épreuve de LVB du baccalauréat : compréhension écrite et orale, expression orale en continu et en interaction.' }
 
 async function ecrireSeances(prefixeNom: string, liste: SeanceEcrite[], progressionRef: string | ((e: SeanceEcrite) => string), cadre: Cadre = CADRE_5E) {
@@ -219,4 +221,14 @@ export async function ajuster1reAxe2SansTache() {
     if (c.niveau === '1re' && !(c.axesFaitsSansTache ?? []).includes('Axe 2 — Diversité et inclusion'))
       await put<Classe>('classes', { ...c, axesFaitsSansTache: [...(c.axesFaitsSansTache ?? []), 'Axe 2 — Diversité et inclusion'] })
   await put('meta', { id: 'ajust-1re-axe2-2026', le: new Date().toISOString() })
+}
+
+/** 13/11/2026 — « Rédige les séances de 1re à la main jusqu'à Noël » (1re A et 1re B, du 16/11 au 18/12). */
+export async function ajuster1reMain() {
+  if (await get('meta', 'ajust-1re-main-2026')) return
+  for (const lettre of ['A', 'B'] as const) {
+    const liste = seances1rePour(lettre)
+    await ecrireSeances(`1re${lettre.toLowerCase()}`, liste, (e) => REF_1RE[(e as (typeof liste)[number]).ref], CADRE_1RE)
+  }
+  await put('meta', { id: 'ajust-1re-main-2026', le: new Date().toISOString() })
 }

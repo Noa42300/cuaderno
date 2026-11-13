@@ -171,7 +171,12 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
 - 5e D, 23 nov. → 7 déc. : `SEANCES_5E_D_FIN` (`ajuster5eDFin`) — adjectifs (accords) · « Soy yo » (Bomba
   Estéreo, clip) · gustar · préparation de la tâche finale (vidéo pour Diego, Guadalajara) · tâche finale ·
   bilan & quiz Mexique. → **Toutes les séances de 5e D jusqu’à Noël sont rédigées à la main.** Les autres
-  classes restent en fiches générées (trames) — demande de la prof : « les 5e uniquement pour l’instant ».
+  classes restent en fiches générées (trames), sauf Tle et 1re jusqu’à Noël.
+- **1re A et 1re B, 16/11 → 18/12** (demande du 13/11) : `src/data/seances1re.ts` (`SEANCES_1RE`, 10 séances, dates
+  propres à chaque classe) + `ajuster1reMain()` (cadre A2+ → B1). Fin de l'axe 2 : Ni una menos (découverte,
+  slogans + queremos que) · acoso escolar (affiche, débat) · obligation + synthèse de l'axe. Puis « Voces andinas » :
+  palabras quechuas + Renata Flores · chanter en quechua (imparfait) · subjonctif · cholitas (photos) · cholitas
+  (article, interview, passé composé) · passé composé + bilan. Documents à choisir entre [crochets].
 - Règle de non-écrasement : une fiche est « modifiée par la prof » si modifieLe − creeLe > 2 s.
 - 4e « Navidad en España » resserrée à 7 séances (`seances: [1,2,4,6,9,10,11]`) pour finir avant Noël.
 - `preparerJusquaNoel()` : toutes les fiches de toutes les classes générées jusqu’au 18/12/2026 (138 fiches),

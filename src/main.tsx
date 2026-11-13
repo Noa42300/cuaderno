@@ -6,7 +6,7 @@ import { enregistrerServiceWorker } from './pwa'
 import { demanderStockagePersistant } from './db/db'
 import { ajouterClassesInitiales } from './data/classesInitiales'
 import { chargerEdtInitial } from './data/edtInitial'
-import { ajuster5eD, ajuster5eDFin, ajuster5eDNoel, ajuster1reAxe1, ajuster1reVocesAndinas, ajuster1reAxe2SansTache, ajusterTleMain, ajusterTleMestizaje, appliquerAjustements, preparerJusquaNoel } from './data/ajustements'
+import { ajuster5eD, ajuster5eDFin, ajuster5eDNoel, ajuster1reAxe1, ajuster1reVocesAndinas, ajuster1reAxe2SansTache, ajuster1reMain, ajusterTleMain, ajusterTleMestizaje, appliquerAjustements, preparerJusquaNoel } from './data/ajustements'
 
 enregistrerServiceWorker()
 demanderStockagePersistant()
@@ -19,6 +19,7 @@ ajouterClassesInitiales().then(() => chargerEdtInitial()).then(() => appliquerAj
   .then(() => ajuster1reAxe1())
   .then(() => ajuster1reVocesAndinas())
   .then(() => ajuster1reAxe2SansTache())
+  .then(() => ajuster1reMain())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
