@@ -184,17 +184,17 @@ export const BANQUE: (SeqProg & { niveaux: NiveauProg[] })[] = [
   // ——— Première : suites conseillées après « Diversité et inclusion » (demande de la prof, 13/11/2026,
   // nouvel axe à partir du 30/11 : 6 cours avant Noël, la séquence se termine en janvier).
   {
-    niveaux: ['1re'], id: 'b-1re-andes-inclusion', periode: 0, titre: 'Voces andinas: del silencio al orgullo', axe: 'Axe 6 — L’espace andin',
+    niveaux: ['1re'], id: 'b-1re-andes-inclusion', periode: 0, titre: 'Voces andinas: del silencio al orgullo', axe: 'Axe 6 — L’espace andin (associé à l’axe 1 Identités et échanges)',
     problematique: '¿Cómo reivindican hoy los pueblos andinos su lengua y su cultura?',
-    culturel: 'comprendre la place des peuples quechua et aymara : discriminations héritées, Estado Plurinacional de Bolivie (2009), renouveau du quechua par la musique',
+    culturel: 'axes 6 et 1 associés : identités quechua et aymara (discriminations héritées, Estado Plurinacional de Bolivie, 2009), échanges entre langues (mots quechuas passés en espagnol : papa, cancha, choclo, cóndor, puma) et renouveau du quechua par la musique',
     points: ['subjuntivo', 'perfecto'],
-    lexique: [['los pueblos originarios', 'les peuples autochtones'], ['el quechua / el aymara', 'le quechua / l’aymara'], ['la discriminación', 'la discrimination'], ['avergonzarse de', 'avoir honte de'], ['reivindicar', 'revendiquer'], ['el orgullo', 'la fierté'], ['la cholita', 'femme aymara en tenue traditionnelle'], ['plurinacional', 'plurinational'], ['la lengua materna', 'la langue maternelle'], ['transmitir', 'transmettre'], ['visibilizar', 'rendre visible'], ['ha recuperado', 'a retrouvé']],
+    lexique: [['los pueblos originarios', 'les peuples autochtones'], ['el quechua / el aymara', 'le quechua / l’aymara'], ['la discriminación', 'la discrimination'], ['avergonzarse de', 'avoir honte de'], ['reivindicar', 'revendiquer'], ['el orgullo', 'la fierté'], ['la cholita', 'femme aymara en tenue traditionnelle'], ['plurinacional', 'plurinational'], ['la lengua materna', 'la langue maternelle'], ['transmitir', 'transmettre'], ['visibilizar', 'rendre visible'], ['ha recuperado', 'a retrouvé'], ['el préstamo lingüístico', 'l’emprunt linguistique']],
     docs: [
       { nature: 'Chanson / clip', titre: 'Renata Flores, la reina del rap en quechua (Ayacucho) — un clip au choix, p. ex. « Qam hina »', source: 'Renata Flores (Pérou) — lien à chercher sur sa chaîne officielle', al: 'CO', aChoisir: true },
       { nature: 'Photographies', titre: 'Las cholitas luchadoras de El Alto / las cholitas escaladoras (Bolivie)', source: 'photos de presse', al: 'EOC', aChoisir: true },
       { nature: 'Texte officiel / article', titre: 'Bolivia, Estado Plurinacional: la Constitución de 2009 reconoce 36 lenguas originarias', source: 'Constitution bolivienne (art. 1 et 5) ou article de presse', al: 'CE', aChoisir: true },
     ],
-    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : on garde le fil (discriminations, inclusion, identité) en le déplaçant vers l’aire andine. L’axe 6 est propre à la 1re, rapide à rater s’il est repoussé en fin d’année (il était prévu en période 5), et la séquence se coupe bien aux vacances (découverte avant Noël, tâche finale en janvier).' },
+    conseil: { apres: 'Axe 2 — Diversité et inclusion', bonus: 6, texte: '★ Mon conseil après « Diversité et inclusion » : associer les axes 6 (espace andin) et 1 (identités et échanges), comme le programme l’autorise. Il te reste 5 axes pour 4 places et environ 5 mois : couvrir deux axes en une séquence te donne de la marge. On garde le fil de l’inclusion (discriminations, identité), et la séquence se coupe bien aux vacances (découverte avant Noël, tâche finale en janvier).' },
     tache: { al: 'EOC', texte: 'Je réalise un podcast de 3 minutes : « Voces andinas », portrait d’une personne ou d’un collectif andin qui fait entendre sa culture.' },
   },
   {

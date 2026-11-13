@@ -137,6 +137,11 @@ Jeudi et vendredi après-midi lus en 12h45 et 13h45 (photos peu nettes) — à c
   andinas: del silencio al orgullo » (axe 6, conseillée) · 2. « Los Andes se derriten: ¿quién paga? » (axes 5+6,
   affaire Lliuya c. RWE) · 3. « Cantar y pintar contra el poder » (axe 3, Guernica, Víctor Jara). Pas de lien
   vidéo (aucun trouvé de façon fiable). Non planifiées : la prof choisit puis « Planifier ».
+- 13/11/2026 : la prof signale que **l’axe 1 Identités et échanges n’a pas été traité en 1re** (l’agenda le
+  croyait fait, période 1). `Classe.axesNonFaits` (correction « ✕ pas fait » dans Inspiración, « annuler ») ;
+  `ajuster1reAxe1()` l’applique une fois à 1re A et 1re B. « Voces andinas » devient axes 6 + 1 associés
+  (identités quechua/aymara + emprunts quechuas en espagnol). Limite : une séquence associée ne marque
+  qu’un axe comme traité dans Inspiración.
 - Actions : **Planifier sur les prochains cours** (programmation → recalage de la progression ; banque →
   séquence personnelle + 11 fiches complètes posées sur les cours, puis la progression reprend),
   Générer une fiche, Garder l’idée (Secuencias).

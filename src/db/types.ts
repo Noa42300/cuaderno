@@ -33,6 +33,8 @@ export interface Classe {
   archivee?: boolean
   /** Point de départ de la progression : à cette date, la classe en est à la séance n° `index` (0 = 1re). */
   depart?: { date: ISODate; index: number }
+  /** Axes que l'agenda croit traités mais que la prof n'a pas faits (correction dans Inspiración). */
+  axesNonFaits?: string[]
 }
 
 /** Jour ISO : 1 = lundi … 6 = samedi */

@@ -170,3 +170,12 @@ export async function ajusterTleMain() {
   }
   await put('meta', { id: 'ajust-tle-main-2026', le: new Date().toISOString() })
 }
+
+/** 13/11/2026 — la prof : « Identités et échanges n'a pas été traité » en 1re (A et B). */
+export async function ajuster1reAxe1() {
+  if (await get('meta', 'ajust-1re-axe1-2026')) return
+  for (const c of await all<Classe>('classes'))
+    if (c.niveau === '1re' && !(c.axesNonFaits ?? []).includes('Identités et échanges'))
+      await put<Classe>('classes', { ...c, axesNonFaits: [...(c.axesNonFaits ?? []), 'Identités et échanges'] })
+  await put('meta', { id: 'ajust-1re-axe1-2026', le: new Date().toISOString() })
+}

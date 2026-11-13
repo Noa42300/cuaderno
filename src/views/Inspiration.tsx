@@ -72,7 +72,22 @@ export default function Inspiration() {
             {analyse.axesVoulus.length > 0 && <li>🎯 Axe souhaité : <b>{analyse.axesVoulus.join(', ')}</b></li>}
             {analyse.motsTheme.length > 0 && <li>🔎 Thème : <b>{analyse.motsTheme.join(', ')}</b></li>}
             {analyse.points.length > 0 && <li>📐 Grammaire : <b>{analyse.points.map((k) => POINTS_LANGUE[k]?.label).join(', ')}</b></li>}
-            {res && res.faits.length > 0 && <li>📚 Déjà traité cette année (d’après l’agenda) : {res.faits.join(' · ')}</li>}
+            {res && res.faits.length > 0 && (
+              <li>📚 Déjà traité cette année (d’après l’agenda) :{' '}
+                {res.faits.map((f) => (
+                  <span key={f} className="mr-1 inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 px-2 py-0.5">
+                    {f}
+                    {classe && <button className="text-xs font-bold text-grenat hover:underline" title="Cet axe n’a pas été traité avec cette classe"
+                      onClick={() => put<Classe>('classes', { ...classe, axesNonFaits: [...(classe.axesNonFaits ?? []), f] })}>✕ pas fait</button>}
+                  </span>
+                ))}
+              </li>
+            )}
+            {classe && (classe.axesNonFaits?.length ?? 0) > 0 && (
+              <li className="text-muted">Marqué « pas fait » par toi : {classe.axesNonFaits!.join(' · ')}{' '}
+                <button className="text-xs font-bold text-azulejo hover:underline" onClick={() => put<Classe>('classes', { ...classe, axesNonFaits: [] })}>annuler</button>
+              </li>
+            )}
             {res && <li>🗺️ Axes restants au programme : {res.axesRestants.length ? res.axesRestants.join(' · ') : 'tous traités'}</li>}
           </ul>
         </section>
