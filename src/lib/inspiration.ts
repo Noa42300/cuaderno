@@ -125,6 +125,7 @@ export function axesFaits(classe: Classe, ctx: Contexte): string[] {
   // Une séquence compte comme traitée si on a passé sa tâche finale.
   for (const o of passes) { const sp = prog[o.index]; if (sp?.type === 'tache' || sp?.type === 'tle-synthese') faits.add(sp.seq.axe) }
   for (const s of ctx.seances) if (s.classeId === classe.id && s.statut === 'faite' && s.programme && /Tâche finale/.test(s.titre)) faits.add(s.programme)
+  for (const x of classe.axesFaitsSansTache ?? []) faits.add(x)
   const exclus = (classe.axesNonFaits ?? []).map((x) => norm(sansAxe(x)))
   return [...faits].filter((x) => !exclus.includes(norm(sansAxe(x))))
 }

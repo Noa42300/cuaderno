@@ -211,3 +211,12 @@ export async function ajuster1reVocesAndinas() {
   }
   await put('meta', { id: 'ajust-1re-voces-2026', le: new Date().toISOString() })
 }
+
+/** 13/11/2026 — 1re : « On oublie la tâche finale car la programmation est serrée » — l'axe 2 est clos le 26-27/11. */
+export async function ajuster1reAxe2SansTache() {
+  if (await get('meta', 'ajust-1re-axe2-2026')) return
+  for (const c of await all<Classe>('classes'))
+    if (c.niveau === '1re' && !(c.axesFaitsSansTache ?? []).includes('Axe 2 — Diversité et inclusion'))
+      await put<Classe>('classes', { ...c, axesFaitsSansTache: [...(c.axesFaitsSansTache ?? []), 'Axe 2 — Diversité et inclusion'] })
+  await put('meta', { id: 'ajust-1re-axe2-2026', le: new Date().toISOString() })
+}

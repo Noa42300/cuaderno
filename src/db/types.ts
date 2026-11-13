@@ -35,6 +35,8 @@ export interface Classe {
   depart?: { date: ISODate; index: number }
   /** Axes que l'agenda croit traités mais que la prof n'a pas faits (correction dans Inspiración). */
   axesNonFaits?: string[]
+  /** Axes terminés sans tâche finale (choix de la prof) : comptés comme traités. */
+  axesFaitsSansTache?: string[]
 }
 
 /** Jour ISO : 1 = lundi … 6 = samedi */
